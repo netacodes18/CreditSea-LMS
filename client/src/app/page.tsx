@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, Sliders, ArrowRight, CheckCircle2, TrendingUp, TrendingDown } from 'lucide-react';
+import { ShieldCheck, Sliders, CheckCircle2, TrendingUp, TrendingDown } from 'lucide-react';
 import LandingNavActions from '@/components/LandingNavActions';
 
 const STEPS = [
@@ -54,13 +54,7 @@ export default function Home() {
             disburses, and collects — all from one role-gated, fully auditable console.
           </p>
           <div className="mt-9 flex items-center justify-center gap-x-4 animate-fade-up" style={{ animationDelay: '0.15s' }}>
-            <Link href="/register" className="neo-btn px-6 py-3.5 text-sm">
-              Explore the platform <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href="/login" className="text-sm font-bold text-[var(--ink)] group px-4 py-3">
-              Sign in to your dashboard
-              <span aria-hidden="true" className="group-hover:translate-x-1 inline-block transition-transform ml-1">→</span>
-            </Link>
+            <LandingNavActions variant="hero" />
           </div>
         </div>
 
