@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ShieldCheck, Sliders, ArrowRight, CheckCircle2, TrendingUp, TrendingDown } from 'lucide-react';
+import LandingNavActions from '@/components/LandingNavActions';
 
 const STEPS = [
   { n: '01', title: 'Sign Up & Login', desc: 'Secure JWT auth with hashed passwords.' },
@@ -26,14 +27,7 @@ export default function Home() {
             </div>
             <span className="font-bold text-lg tracking-tight text-[var(--ink)]">LMS</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <Link href="/login" className="text-sm font-bold text-[var(--ink)] px-4 py-2 rounded-full hover:bg-[var(--ink)]/5 transition-colors">
-              Log in
-            </Link>
-            <Link href="/register" className="neo-btn text-sm px-5 py-2.5">
-              Sign up
-            </Link>
-          </div>
+          <LandingNavActions />
         </nav>
       </header>
 
