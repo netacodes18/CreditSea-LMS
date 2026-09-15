@@ -54,10 +54,34 @@ npm run dev
 ```bash
 cd client
 npm install
-cp .env.example .env    # optional, defaults to http://localhost:5000/api
+cp .env.example .env    # optional, API_ORIGIN defaults to http://localhost:5000
 npm run dev
 ```
 *(Runs on `http://localhost:3000`)*
+
+The browser never calls the Express server directly. `client/next.config.ts` proxies `/api/*` and `/uploads/*` to `API_ORIGIN`, so the app and API share one origin and the `httpOnly` auth cookie stays first-party.
+
+---
+
+## Deployment (Render + Vercel)
+
+**1. MongoDB Atlas** — Network Access → allow `0.0.0.0/0` (Render has no fixed IP). Copy the connection string.
+
+**2. API on Render** — New → Web Service → this repo.
+
+| Setting | Value |
+|---|---|
+| Root Directory | `server` |
+| Build Command | `npm install --include=dev && npm run build` |
+| Start Command | `npm run start:prod` |
+
+Environment variables: `NODE_ENV=production`, `MONGO_URI=<atlas uri>`, `JWT_SECRET=<long random string>`, `CLIENT_URL=https://<your-app>.vercel.app`. Render provides `PORT`. Check `https://<service>.onrender.com/api/health`.
+
+**3. Frontend on Vercel** — New Project → this repo → Root Directory `client` (Next.js is auto-detected). Environment variable: `API_ORIGIN=https://<service>.onrender.com`. Deploy, then put the Vercel URL into Render's `CLIENT_URL`.
+
+**4. Seed (optional, wipes data)** — locally, with `MONGO_URI` in `server/.env` pointing at Atlas: `cd server && npm run seed`.
+
+> Render's free tier sleeps after inactivity (first request takes ~30–50 s) and its filesystem is ephemeral, so uploaded salary slips are lost on redeploy or restart. For durable files, attach a Render persistent disk or move uploads to object storage.
 
 ---
 
