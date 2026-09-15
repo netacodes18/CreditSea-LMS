@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import api from '@/lib/api';
+import api, { fileUrl } from '@/lib/api';
 import { AlertCircle, CheckCircle2, FileText, UploadCloud, ExternalLink, Loader2 } from 'lucide-react';
 
 interface Document {
@@ -169,7 +169,7 @@ export default function DocumentsPage() {
                   </div>
                 </div>
                 <a
-                  href={`http://localhost:5000${doc.storageKey}`} // Assume backend runs on port 5000 for local dev
+                  href={fileUrl(doc.storageKey)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[var(--ink)] hover:underline text-sm font-bold inline-flex items-center gap-1 shrink-0"

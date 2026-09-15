@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
+import api, { fileUrl } from '@/lib/api';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
 import { ArrowLeft, FileText, Loader2, CheckCircle2, XCircle, Banknote, CheckCheck } from 'lucide-react';
@@ -158,7 +158,7 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
               {loan.salarySlipDocumentId.originalName}
             </span>
             <a
-              href={`http://localhost:5000${loan.salarySlipDocumentId.storageKey}`}
+              href={fileUrl(loan.salarySlipDocumentId.storageKey)}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-bold hover:underline text-[var(--ink)]"

@@ -26,7 +26,7 @@ import collectionRoutes from './routes/collectionRoutes';
 import path from 'path';
 
 // Serve uploads
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);
