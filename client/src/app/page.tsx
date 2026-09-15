@@ -1,13 +1,13 @@
-import Link from 'next/link';
 import {
   ShieldCheck, Sliders, CheckCircle2, Calculator, Lock, Users2, Receipt,
-  FileCheck2, ArrowRight, Zap, ScrollText, KeyRound, Fingerprint,
+  FileCheck2, Zap, ScrollText, Fingerprint,
 } from 'lucide-react';
 import LandingNavActions from '@/components/LandingNavActions';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import DashboardPreview from '@/components/landing/DashboardPreview';
 import PhonePreview from '@/components/landing/PhonePreview';
+import FinalCta from '@/components/landing/FinalCta';
 
 const MODULES = [
   { name: 'Sales', color: '#f97316', desc: 'Track registered leads before they apply.' },
@@ -343,33 +343,7 @@ export default function Home() {
       {/* ---------- Final CTA ---------- */}
       <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="neo-card px-8 py-12 sm:px-14 sm:py-16 text-center relative overflow-hidden">
-            <div
-              className="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[260px] rounded-full opacity-[0.10] blur-3xl"
-              style={{ backgroundColor: '#f97316' }}
-            />
-            <div className="relative">
-              <div className="inline-flex items-center gap-2 neo-chip bg-[var(--paper)]">
-                <KeyRound className="w-3 h-3" style={{ color: '#f97316' }} />
-                Free to apply
-              </div>
-              <h2 className="mt-5 text-3xl sm:text-4xl font-bold text-[var(--ink)] tracking-tight max-w-xl mx-auto">
-                Check your eligibility in under a minute
-              </h2>
-              <p className="mt-4 text-[var(--ink)]/60 max-w-lg mx-auto leading-relaxed">
-                Create an account, complete your details and see exactly what you would repay —
-                before you commit to anything.
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link href="/register" className="neo-btn px-7 py-3.5 text-sm w-full sm:w-auto">
-                  Get started <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link href="/login" className="neo-btn-ghost px-7 py-3.5 text-sm w-full sm:w-auto">
-                  Sign in
-                </Link>
-              </div>
-            </div>
-          </div>
+          <FinalCta />
         </div>
       </section>
 
