@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, Sliders, Users2, Zap, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Sliders, Users2, ArrowRight, CheckCircle2, TrendingUp, TrendingDown } from 'lucide-react';
 
 const STEPS = [
   { n: '01', title: 'Sign Up & Login', desc: 'Secure JWT auth with hashed passwords.' },
@@ -41,38 +41,101 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <div className="relative isolate px-6 pt-14 lg:px-8">
-        <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-          <div
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] opacity-40 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem] animate-gradient"
-            style={{
-              backgroundImage: 'linear-gradient(120deg, #a855f7, #ec4899, #6366f1, #06b6d4)',
-              clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-            }}
-          />
+      <div className="relative isolate overflow-hidden pt-14">
+        {/* pastel mesh backdrop */}
+        <div
+          className="absolute inset-0 -z-20"
+          style={{ background: 'linear-gradient(160deg, #eef4ff 0%, #eef0ff 30%, #f3ecff 60%, #eee6fd 100%)' }}
+        />
+        <div
+          className="absolute inset-0 -z-10 opacity-80"
+          style={{
+            backgroundImage:
+              'radial-gradient(at 15% 15%, rgba(56,189,248,0.35) 0px, transparent 45%), radial-gradient(at 85% 10%, rgba(167,139,250,0.35) 0px, transparent 45%), radial-gradient(at 90% 80%, rgba(129,140,248,0.3) 0px, transparent 45%), radial-gradient(at 10% 85%, rgba(56,189,248,0.25) 0px, transparent 45%)',
+          }}
+        />
+
+        <div className="mx-auto max-w-3xl px-6 pt-16 text-center relative">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 backdrop-blur px-4 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-slate-900/5 shadow-sm animate-fade-up">
+            Loan Management, simplified
+          </div>
+          <h1
+            className="mt-6 text-5xl sm:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.08] animate-fade-up"
+            style={{ animationDelay: '0.05s' }}
+          >
+We handle every loan, application to repayment.
+          </h1>
+          <p className="mt-6 text-lg leading-8 text-slate-600 animate-fade-up" style={{ animationDelay: '0.1s' }}>
+            Borrowers apply in minutes with an instant eligibility check. Your team sanctions,
+            disburses, and collects — all from one role-gated, fully auditable console.
+          </p>
+          <div className="mt-9 flex items-center justify-center gap-x-4 animate-fade-up" style={{ animationDelay: '0.15s' }}>
+            <Link
+              href="/register"
+              className="rounded-full px-6 py-3 text-sm font-semibold text-white inline-flex items-center gap-2 shadow-[0_10px_30px_-8px_rgba(99,102,241,0.6)] hover:-translate-y-0.5 transition-transform"
+              style={{ backgroundImage: 'linear-gradient(90deg, #22d3ee, #6366f1, #8b5cf6)' }}
+            >
+              Explore the platform <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link href="/login" className="text-sm font-semibold text-slate-900 group px-4 py-3">
+              Sign in to your dashboard
+              <span aria-hidden="true" className="group-hover:translate-x-1 inline-block transition-transform ml-1">→</span>
+            </Link>
+          </div>
         </div>
 
-        <div className="mx-auto max-w-3xl py-32 sm:py-44">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold ring-1 ring-violet-200 bg-violet-50 text-violet-700 mb-6 animate-fade-up">
-              <Zap className="w-3.5 h-3.5" />
-              MERN · Next.js · TypeScript
+        {/* floating micro-badges */}
+        <FloatingPill className="hidden sm:flex left-[8%] top-[16%]" delay="0s">Borrower</FloatingPill>
+        <FloatingPill className="hidden sm:flex right-[10%] top-[22%]" delay="0.6s">Sanction</FloatingPill>
+
+        {/* device + stat card composition */}
+        <div className="relative mx-auto max-w-5xl px-6 pb-24 pt-16">
+          <div className="relative mx-auto w-[280px] sm:w-[300px]">
+            {/* floating stat cards */}
+            <div className="hidden md:block absolute -left-44 top-10 animate-float">
+              <StatCard label="Approval Rate" value="94%" delta="+6.2%" accent="#10b981" />
             </div>
-            <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 sm:text-7xl animate-fade-up" style={{ animationDelay: '0.05s' }}>
-              Lending, <span className="text-gradient animate-gradient">reimagined.</span>
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-slate-600 animate-fade-up" style={{ animationDelay: '0.1s' }}>
-              From a borrower&apos;s first application to the final repayment — a real-time eligibility
-              engine, role-gated operations, and a fully auditable loan lifecycle.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-4 animate-fade-up" style={{ animationDelay: '0.15s' }}>
-              <Link href="/register" className="btn-gradient px-6 py-3 text-sm inline-flex items-center gap-2">
-                Get started <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link href="/login" className="text-sm font-semibold text-slate-900 group px-4 py-3">
-                Sign in to your dashboard
-                <span aria-hidden="true" className="group-hover:translate-x-1 inline-block transition-transform ml-1">→</span>
-              </Link>
+            <div className="hidden md:block absolute -right-48 top-2 animate-float" style={{ animationDelay: '1s' }}>
+              <StatCard label="Avg. Disbursal" value="1.8 days" delta="-32%" accent="#6366f1" down />
+            </div>
+            <div className="hidden lg:flex absolute -right-24 bottom-8 items-center gap-1.5 rounded-full bg-slate-900 text-white text-xs font-semibold px-3 py-1.5 shadow-lg animate-float" style={{ animationDelay: '1.6s' }}>
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> 12% p.a.
+            </div>
+
+            {/* phone frame */}
+            <div className="relative rounded-[2.5rem] bg-slate-900 p-2.5 shadow-2xl rotate-[-3deg] animate-float" style={{ animationDelay: '0.3s' }}>
+              <div className="rounded-[2rem] bg-white overflow-hidden aspect-[9/18.5] relative">
+                <div className="absolute top-0 inset-x-0 h-6 flex items-center justify-center">
+                  <div className="w-20 h-4 bg-slate-900 rounded-full mt-1.5" />
+                </div>
+                <div className="pt-9 px-4 pb-4 h-full flex flex-col">
+                  <p className="text-[10px] font-semibold text-violet-500 uppercase tracking-widest">Apply for a Loan</p>
+                  <p className="mt-1 text-lg font-extrabold text-slate-900 leading-tight">Get sanctioned<br />in minutes.</p>
+
+                  <div className="mt-5 rounded-2xl p-4 text-white" style={{ backgroundImage: 'linear-gradient(135deg, #7c3aed, #db2777)' }}>
+                    <p className="text-[10px] opacity-80 uppercase tracking-wide">Loan Amount</p>
+                    <p className="text-2xl font-extrabold mt-0.5">₹2,00,000</p>
+                    <div className="mt-3 h-1.5 rounded-full bg-white/25">
+                      <div className="h-full w-2/5 rounded-full bg-white" />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-slate-50 p-2.5">
+                      <p className="text-[9px] text-slate-400 uppercase">Tenure</p>
+                      <p className="text-xs font-bold text-slate-800 mt-0.5">180 days</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-2.5">
+                      <p className="text-[9px] text-slate-400 uppercase">Interest</p>
+                      <p className="text-xs font-bold text-slate-800 mt-0.5">₹11,835</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto rounded-full py-2.5 text-center text-xs font-bold text-white" style={{ backgroundImage: 'linear-gradient(90deg, #22d3ee, #6366f1)' }}>
+                    Submit Application
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -125,6 +188,32 @@ export default function Home() {
           <TrustItem icon={Sliders} title="Live BRE" desc="Age, salary, PAN, employment — validated the instant you apply." />
           <TrustItem icon={CheckCircle2} title="Auditable lifecycle" desc="APPLIED → SANCTIONED → DISBURSED → CLOSED, fully tracked." />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function FloatingPill({ children, className = '', delay = '0s' }: { children: React.ReactNode; className?: string; delay?: string }) {
+  return (
+    <div
+      className={`absolute z-10 items-center gap-1.5 rounded-full bg-slate-900 text-white text-xs font-semibold pl-2.5 pr-3 py-1.5 shadow-lg animate-float ${className}`}
+      style={{ animationDelay: delay }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+      {children}
+      <span className="absolute -bottom-1 left-4 w-2 h-2 bg-slate-900 rotate-45" />
+    </div>
+  );
+}
+
+function StatCard({ label, value, delta, accent, down = false }: { label: string; value: string; delta: string; accent: string; down?: boolean }) {
+  const Icon = down ? TrendingDown : TrendingUp;
+  return (
+    <div className="glass-panel rounded-2xl px-4 py-3 w-40 shadow-xl">
+      <p className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</p>
+      <p className="text-lg font-extrabold text-slate-900 mt-0.5">{value}</p>
+      <div className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${accent}1a`, color: accent }}>
+        <Icon className="w-3 h-3" /> {delta}
       </div>
     </div>
   );
