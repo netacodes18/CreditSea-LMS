@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import AuthAside from '@/components/AuthAside';
 
 const ROLE_LANDING: Record<string, string> = {
@@ -49,7 +49,13 @@ export default function LoginPage() {
       <AuthAside mode="login" />
 
       {/* Form panel */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="relative flex-1 flex items-center justify-center px-6 py-16">
+        <Link
+          href="/"
+          className="absolute top-5 left-5 sm:top-6 sm:left-8 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--ink)]/60 hover:text-[var(--ink)] transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to home
+        </Link>
         <div className="w-full max-w-sm animate-fade-up">
           <h2 className="text-3xl font-bold text-[var(--ink)] tracking-tight">Sign in</h2>
           <p className="mt-2 text-sm text-[var(--ink)]/60 font-medium">

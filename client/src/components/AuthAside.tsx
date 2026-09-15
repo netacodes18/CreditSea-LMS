@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { CheckCircle2, Circle, TrendingUp, Clock, UserPlus, ShieldCheck, FileText, Wallet } from 'lucide-react';
 
 const PIPELINE = [
@@ -30,12 +31,14 @@ export default function AuthAside({ mode }: { mode: 'login' | 'register' }) {
       />
 
       <div className="relative w-full max-w-md mx-auto animate-fade-up">
-        <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-7"
+        <Link
+          href="/"
+          aria-label="Go to homepage"
+          className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl mb-7 hover:opacity-90 transition-opacity"
           style={{ backgroundColor: '#f97316' }}
         >
           L
-        </div>
+        </Link>
 
         {mode === 'login' ? (
           <>
