@@ -75,3 +75,15 @@ Running `npm run seed` (from `server/`) drops all existing users and re-creates 
 | Borrower | `borrower@example.com` | `password123` |
 
 Admin can access every dashboard module; each other executive role is restricted to its own module (enforced on both frontend and backend); the Borrower account can only access the application portal.
+
+### Demo borrowers (optional)
+
+`npm run seed` creates the six role accounts above with empty data, which means the Sanction, Disbursement and Collection queues all start empty. To review those modules with realistic content, these demo borrowers can be created — one parked at each stage of the lifecycle (same password, `password123`):
+
+| Email | Loan | Status | Useful for |
+|---|---|---|---|
+| `demo.applied@example.com` | ₹1,50,000 / 120 days | `APPLIED` | Sanction queue — approve or reject |
+| `demo.sanctioned@example.com` | ₹2,50,000 / 180 days | `SANCTIONED` | Disbursement queue — record a payout |
+| `demo.disbursed@example.com` | ₹1,00,000 / 90 days | `DISBURSED` | Collection — part-paid, balance outstanding |
+
+Each has a completed profile, a passed eligibility check and an uploaded salary slip. A borrower registered without an application also appears as a lead on the Sales dashboard.

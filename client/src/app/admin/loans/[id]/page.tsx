@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import api, { fileUrl } from '@/lib/api';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
-import { ArrowLeft, FileText, Loader2, CheckCircle2, XCircle, Banknote, CheckCheck } from 'lucide-react';
+import Modal from '@/components/Modal';
+import { ArrowLeft, FileText, Loader2, CheckCircle2, XCircle, Banknote, CheckCheck, AlertTriangle } from 'lucide-react';
 
 const SANCTION_ACCENT = '#d97706';
 const DISBURSEMENT_ACCENT = '#059669';
@@ -17,6 +18,19 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // dialog state: which action is being confirmed, plus its input and any error
+  const [dialog, setDialog] = useState<null | 'APPROVE' | 'REJECT' | 'DISBURSE'>(null);
+  const [reason, setReason] = useState('');
+  const [reference, setReference] = useState('');
+  const [actionError, setActionError] = useState('');
+
+  const closeDialog = () => {
+    setDialog(null);
+    setReason('');
+    setReference('');
+    setActionError('');
+  };
 
   useEffect(() => {
     fetchLoan();
@@ -36,34 +50,45 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
   };
 
   const handleSanction = async (action: 'APPROVE' | 'REJECT') => {
-    if (!confirm(`Are you sure you want to ${action} this loan?`)) return;
+    if (action === 'REJECT' && !reason.trim()) {
+      setActionError('A rejection reason is required.');
+      return;
+    }
 
     setSubmitting(true);
+    setActionError('');
     try {
-      const reason = action === 'REJECT' ? prompt("Enter rejection reason:") : undefined;
-      const res = await api.post(`/admin/loans/${id}/sanction`, { action, reason });
+      const res = await api.post(`/admin/loans/${id}/sanction`, {
+        action,
+        reason: action === 'REJECT' ? reason.trim() : undefined,
+      });
       if (res.data.success) {
+        closeDialog();
         fetchLoan();
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Action failed');
+      setActionError(err.response?.data?.message || 'Action failed');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDisburse = async () => {
-    const reference = prompt("Enter UTR/Transaction Reference number:");
-    if (!reference) return;
+    if (!reference.trim()) {
+      setActionError('A UTR / transaction reference is required.');
+      return;
+    }
 
     setSubmitting(true);
+    setActionError('');
     try {
-      const res = await api.post(`/admin/loans/${id}/disburse`, { reference });
+      const res = await api.post(`/admin/loans/${id}/disburse`, { reference: reference.trim() });
       if (res.data.success) {
+        closeDialog();
         fetchLoan();
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Disbursement failed');
+      setActionError(err.response?.data?.message || 'Disbursement failed');
     } finally {
       setSubmitting(false);
     }
@@ -183,7 +208,7 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
             </div>
             <div className="flex flex-wrap gap-4">
               <button
-                onClick={() => handleSanction('APPROVE')}
+                onClick={() => setDialog('APPROVE')}
                 disabled={submitting}
                 className="neo-btn px-5 py-2.5 text-sm disabled:opacity-50"
                 style={{ backgroundColor: SANCTION_ACCENT }}
@@ -191,7 +216,7 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
                 <CheckCircle2 className="w-4 h-4" /> Approve Sanction
               </button>
               <button
-                onClick={() => handleSanction('REJECT')}
+                onClick={() => setDialog('REJECT')}
                 disabled={submitting}
                 className="neo-btn px-5 py-2.5 text-sm text-white disabled:opacity-50"
                 style={{ backgroundColor: 'var(--danger)' }}
@@ -210,7 +235,7 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
             </div>
             <p className="text-sm text-[var(--ink)]/60 font-bold mb-4">This loan is approved and awaiting disbursement.</p>
             <button
-              onClick={handleDisburse}
+              onClick={() => setDialog('DISBURSE')}
               disabled={submitting}
               className="neo-btn px-5 py-2.5 text-sm disabled:opacity-50"
               style={{ backgroundColor: DISBURSEMENT_ACCENT }}
@@ -230,6 +255,120 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
           </div>
         )}
       </div>
+
+      {/* Approve */}
+      <Modal
+        open={dialog === 'APPROVE'}
+        onClose={closeDialog}
+        title="Approve this loan?"
+        description={`₹${(loan.loanAmountPaise / 100).toLocaleString()} over ${loan.tenureDays} days will move to SANCTIONED and become available for disbursement.`}
+        icon={<DialogIcon color={SANCTION_ACCENT}><CheckCircle2 className="w-5 h-5" style={{ color: SANCTION_ACCENT }} /></DialogIcon>}
+        footer={
+          <>
+            <button onClick={closeDialog} disabled={submitting} className="neo-btn-ghost px-5 py-2.5 text-sm">Cancel</button>
+            <button
+              onClick={() => handleSanction('APPROVE')}
+              disabled={submitting}
+              className="neo-btn px-5 py-2.5 text-sm disabled:opacity-60"
+              style={{ backgroundColor: SANCTION_ACCENT, borderColor: SANCTION_ACCENT }}
+            >
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              Approve sanction
+            </button>
+          </>
+        }
+      >
+        {actionError && <DialogError message={actionError} />}
+      </Modal>
+
+      {/* Reject */}
+      <Modal
+        open={dialog === 'REJECT'}
+        onClose={closeDialog}
+        title="Reject this application?"
+        description="The borrower will see this reason on their application. This cannot be undone."
+        icon={<DialogIcon color="var(--danger)"><AlertTriangle className="w-5 h-5" style={{ color: 'var(--danger)' }} /></DialogIcon>}
+        footer={
+          <>
+            <button onClick={closeDialog} disabled={submitting} className="neo-btn-ghost px-5 py-2.5 text-sm">Cancel</button>
+            <button
+              onClick={() => handleSanction('REJECT')}
+              disabled={submitting}
+              className="neo-btn px-5 py-2.5 text-sm text-white disabled:opacity-60"
+              style={{ backgroundColor: 'var(--danger)', borderColor: 'var(--danger)' }}
+            >
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+              Reject application
+            </button>
+          </>
+        }
+      >
+        <label htmlFor="reject-reason" className="block text-xs font-bold uppercase tracking-wide text-[var(--ink)]/55 mb-1.5">
+          Rejection reason
+        </label>
+        <textarea
+          id="reject-reason"
+          rows={3}
+          value={reason}
+          onChange={(e) => { setReason(e.target.value); setActionError(''); }}
+          placeholder="e.g. Declared income could not be verified against the salary slip."
+          className="w-full rounded-xl border border-[var(--line)] px-3 py-2.5 text-sm text-[var(--ink)] placeholder-[var(--ink)]/35 focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all resize-none"
+        />
+        {actionError && <DialogError message={actionError} />}
+      </Modal>
+
+      {/* Disburse */}
+      <Modal
+        open={dialog === 'DISBURSE'}
+        onClose={closeDialog}
+        title="Record disbursement"
+        description={`Confirm the transfer of ₹${(loan.loanAmountPaise / 100).toLocaleString()} to the borrower. The loan will move to DISBURSED.`}
+        icon={<DialogIcon color={DISBURSEMENT_ACCENT}><Banknote className="w-5 h-5" style={{ color: DISBURSEMENT_ACCENT }} /></DialogIcon>}
+        footer={
+          <>
+            <button onClick={closeDialog} disabled={submitting} className="neo-btn-ghost px-5 py-2.5 text-sm">Cancel</button>
+            <button
+              onClick={handleDisburse}
+              disabled={submitting}
+              className="neo-btn px-5 py-2.5 text-sm disabled:opacity-60"
+              style={{ backgroundColor: DISBURSEMENT_ACCENT, borderColor: DISBURSEMENT_ACCENT }}
+            >
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Banknote className="w-4 h-4" />}
+              Record disbursement
+            </button>
+          </>
+        }
+      >
+        <label htmlFor="utr-reference" className="block text-xs font-bold uppercase tracking-wide text-[var(--ink)]/55 mb-1.5">
+          UTR / transaction reference
+        </label>
+        <input
+          id="utr-reference"
+          type="text"
+          value={reference}
+          onChange={(e) => { setReference(e.target.value); setActionError(''); }}
+          placeholder="e.g. UTR202604180012345"
+          className="w-full rounded-xl border border-[var(--line)] px-3 py-2.5 text-sm text-[var(--ink)] placeholder-[var(--ink)]/35 font-mono focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all"
+        />
+        {actionError && <DialogError message={actionError} />}
+      </Modal>
     </div>
+  );
+}
+
+function DialogIcon({ color, children }: { color: string; children: React.ReactNode }) {
+  return (
+    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${color}1a` }}>
+      {children}
+    </div>
+  );
+}
+
+function DialogError({ message }: { message: string }) {
+  return (
+    <p className="mt-3 text-sm font-medium text-[var(--danger)] flex items-start gap-1.5">
+      <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+      {message}
+    </p>
   );
 }
