@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import { AlertCircle, CheckCircle2, Wallet, Receipt, Loader2, CheckCircle } from 'lucide-react';
 
 export default function PaymentsPage() {
   const [loans, setLoans] = useState<any[]>([]);
@@ -26,7 +27,7 @@ export default function PaymentsPage() {
         api.get('/borrower/loans'),
         api.get('/borrower/payments')
       ]);
-      
+
       if (loansRes.data.success) {
         // Only show loans that are disbursed and have outstanding balance
         const activeLoans = loansRes.data.data.filter(
@@ -35,7 +36,7 @@ export default function PaymentsPage() {
         setLoans(activeLoans);
         if (activeLoans.length > 0) setSelectedLoanId(activeLoans[0]._id);
       }
-      
+
       if (paymentsRes.data.success) {
         setPayments(paymentsRes.data.data);
       }
@@ -74,35 +75,58 @@ export default function PaymentsPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-3 text-slate-400">
+          <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
+          <p className="text-sm">Loading payments...</p>
+        </div>
+      </div>
+    );
+  }
 
   const selectedLoan = loans.find(l => l._id === selectedLoanId);
+  const inputClass = "mt-1.5 block w-full rounded-xl border-0 py-2.5 px-3.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm transition-shadow";
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-        <p className="mt-2 text-gray-600">View your active loans and submit EMI payments.</p>
+        <p className="text-xs font-semibold tracking-widest uppercase text-indigo-500 mb-1">Borrower Portal</p>
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payments</h1>
+        <p className="mt-2 text-slate-500">View your active loans and submit EMI payments.</p>
       </div>
 
-      {error && <div className="p-4 bg-red-50 text-red-700 rounded-md border border-red-200">{error}</div>}
-      {success && <div className="p-4 bg-green-50 text-green-700 rounded-md border border-green-200">{success}</div>}
+      {error && (
+        <div className="card-surface p-4 border-rose-100 bg-rose-50/60 text-rose-700 flex items-start gap-2 animate-scale-in">
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <span className="text-sm">{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="card-surface p-4 border-emerald-100 bg-emerald-50/60 text-emerald-700 flex items-start gap-2 animate-scale-in">
+          <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
+          <span className="text-sm">{success}</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
+
         {/* Make Payment Form */}
-        <div className="bg-white p-6 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
-          <h2 className="text-lg font-medium text-gray-900 mb-6">Make a Payment</h2>
+        <div className="card-surface p-6 sm:p-8">
+          <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
+            <Wallet className="w-5 h-5 text-indigo-500" /> Make a Payment
+          </h2>
           {loans.length === 0 ? (
-            <p className="text-sm text-gray-500">You have no active disbursed loans requiring payment.</p>
+            <p className="text-sm text-slate-400">You have no active disbursed loans requiring payment.</p>
           ) : (
             <form onSubmit={handlePayment} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Select Loan</label>
+                <label className="block text-sm font-medium text-slate-700">Select Loan</label>
                 <select
                   value={selectedLoanId}
                   onChange={(e) => setSelectedLoanId(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm ring-1 ring-inset ring-gray-300"
+                  className={inputClass}
                 >
                   {loans.map(loan => (
                     <option key={loan._id} value={loan._id}>
@@ -113,39 +137,39 @@ export default function PaymentsPage() {
               </div>
 
               {selectedLoan && (
-                <div className="p-4 bg-blue-50 rounded-md">
-                  <p className="text-sm text-blue-900 flex justify-between">
-                    <span>Outstanding Balance:</span> 
+                <div className="p-4 rounded-xl bg-indigo-50/60 border border-indigo-100 space-y-1.5">
+                  <p className="text-sm text-indigo-900 flex justify-between">
+                    <span>Outstanding Balance:</span>
                     <span className="font-bold">₹{(selectedLoan.outstandingPaise / 100).toLocaleString()}</span>
                   </p>
-                  <p className="text-sm text-blue-900 flex justify-between mt-1">
-                    <span>Expected EMI:</span> 
+                  <p className="text-sm text-indigo-900 flex justify-between">
+                    <span>Expected EMI:</span>
                     <span className="font-medium">₹{(selectedLoan.emiPaise / 100).toLocaleString()}</span>
                   </p>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Payment Amount (₹)</label>
+                <label className="block text-sm font-medium text-slate-700">Payment Amount (₹)</label>
                 <input
                   type="number"
                   min="1"
                   max={selectedLoan ? selectedLoan.outstandingPaise / 100 : undefined}
                   value={amount}
                   onChange={(e) => setAmount(Number(e.target.value))}
-                  className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm ring-1 ring-inset ring-gray-300"
+                  className={inputClass}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Bank UTR / Reference ID</label>
+                <label className="block text-sm font-medium text-slate-700">Bank UTR / Reference ID</label>
                 <input
                   type="text"
                   value={utr}
                   onChange={(e) => setUtr(e.target.value)}
                   placeholder="e.g. UPI123456789"
-                  className="mt-1 block w-full rounded-md border-gray-300 py-2 px-3 text-gray-900 focus:border-blue-500 focus:ring-blue-500 sm:text-sm ring-1 ring-inset ring-gray-300 uppercase"
+                  className={`${inputClass} uppercase`}
                   required
                 />
               </div>
@@ -153,8 +177,9 @@ export default function PaymentsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full rounded-md bg-blue-600 px-3 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50"
+                className="w-full btn-gradient px-3 py-3 text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
               >
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {submitting ? 'Processing...' : 'Submit Payment'}
               </button>
             </form>
@@ -162,29 +187,34 @@ export default function PaymentsPage() {
         </div>
 
         {/* Payment History */}
-        <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">Payment History</h2>
+        <div className="card-surface overflow-hidden flex flex-col">
+          <div className="p-6 border-b border-slate-100">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-indigo-500" /> Payment History
+            </h2>
           </div>
           <div className="flex-1 overflow-y-auto max-h-[500px]">
             {payments.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">No payment history found.</div>
+              <div className="p-10 text-center">
+                <Receipt className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-400">No payment history found.</p>
+              </div>
             ) : (
-              <ul className="divide-y divide-gray-200">
+              <ul className="divide-y divide-slate-100">
                 {payments.map(p => (
-                  <li key={p._id} className="p-6 hover:bg-gray-50">
+                  <li key={p._id} className="p-6 hover:bg-slate-50/60 transition-colors">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-semibold text-slate-900">
                           ₹{(p.amountPaise / 100).toLocaleString()}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">Loan: {p.applicationId.slice(-6).toUpperCase()}</p>
-                        <p className="text-xs text-gray-500 font-mono mt-1">UTR: {p.utr}</p>
+                        <p className="text-xs text-slate-500 mt-1">Loan: {p.applicationId.slice(-6).toUpperCase()}</p>
+                        <p className="text-xs text-slate-500 font-mono mt-1">UTR: {p.utr}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-500">{new Date(p.paymentDate).toLocaleDateString()}</p>
-                        <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20 mt-2">
-                          Success
+                        <p className="text-sm text-slate-500">{new Date(p.paymentDate).toLocaleDateString()}</p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20 mt-2">
+                          <CheckCircle className="w-3 h-3" /> Success
                         </span>
                       </div>
                     </div>
