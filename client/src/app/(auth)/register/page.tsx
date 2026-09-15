@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
 import { Mail, Lock, KeyRound, ArrowRight } from 'lucide-react';
+import AuthAside from '@/components/AuthAside';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -42,32 +43,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex bg-[var(--paper)]">
-      {/* Brand panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center p-16 bg-[var(--ink)] border-r border-[var(--line)]">
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }}
-        />
-        <div className="absolute top-12 left-10 neo-chip animate-float" style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', borderColor: 'rgba(255,255,255,0.2)' }}>
-          4-step apply
-        </div>
-        <div className="absolute bottom-14 right-10 neo-chip animate-float" style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', borderColor: 'rgba(255,255,255,0.2)', animationDelay: '0.4s' }}>
-          Decisioned instantly
-        </div>
-
-        <div className="relative max-w-md animate-fade-up">
-          <div className="w-14 h-14 rounded-xl flex items-center justify-center text-[var(--ink)] font-bold text-2xl border border-white/25 mb-8" style={{ backgroundColor: '#f97316' }}>
-            L
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight leading-tight text-white">
-            Start your <span style={{ color: '#f97316' }}>loan journey</span>
-          </h1>
-          <p className="mt-6 text-white/70 leading-relaxed font-medium">
-            Personal details, an instant eligibility check, a salary slip upload, then configure
-            your loan with live simple-interest math.
-          </p>
-        </div>
-      </div>
+      <AuthAside mode="register" />
 
       {/* Form panel */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
