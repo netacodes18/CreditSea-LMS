@@ -210,8 +210,9 @@ export default function ProfilePage() {
               id="salary"
               required
               min="0"
-              value={formData.monthlySalaryPaise / 100} // Convert paise to INR for display
-              onChange={(e) => setFormData({...formData, monthlySalaryPaise: Number(e.target.value) * 100})}
+              // stored in paise, shown in rupees; blank instead of a literal 0 so typing doesn't prefix it
+              value={formData.monthlySalaryPaise ? formData.monthlySalaryPaise / 100 : ''}
+              onChange={(e) => setFormData({...formData, monthlySalaryPaise: e.target.value === '' ? 0 : Number(e.target.value) * 100})}
               className={inputClass}
               style={inputShadow}
             />
