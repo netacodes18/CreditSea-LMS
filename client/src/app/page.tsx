@@ -81,7 +81,7 @@ export default function Home() {
 
             {/* phone frame */}
             <div className="relative rounded-[2.25rem] bg-[var(--ink)] p-2.5 animate-float" style={{ boxShadow: '0 30px 60px -20px rgba(15,32,51,0.45)', animationDelay: '0.3s' }}>
-              <div className="rounded-[1.75rem] bg-white overflow-hidden aspect-[9/18.5] relative">
+              <div className="rounded-[1.75rem] bg-white overflow-hidden aspect-[9/17] relative">
                 <div className="absolute top-0 inset-x-0 h-6 flex items-center justify-center">
                   <div className="w-20 h-4 bg-[var(--ink)] rounded-full mt-1.5" />
                 </div>
@@ -108,8 +108,29 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="mt-auto rounded-full py-2.5 text-center text-xs font-bold text-[var(--ink)] border border-[var(--line)]" style={{ backgroundColor: '#f97316' }}>
-                    Submit Application
+                  <div className="mt-2.5 rounded-xl bg-[var(--paper)] p-3 flex items-center justify-between">
+                    <span className="text-[9px] text-[var(--ink)]/50 uppercase font-bold tracking-wide">Total repayment</span>
+                    <span className="text-sm font-bold text-[var(--ink)]">₹2,11,835</span>
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    {[
+                      ['Eligibility check', 'Passed'],
+                      ['Salary slip', 'Verified'],
+                      ['PAN & KYC', 'Matched'],
+                    ].map(([label, state]) => (
+                      <div key={label} className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                        <span className="text-[10px] text-[var(--ink)]/60 flex-1">{label}</span>
+                        <span className="text-[10px] font-semibold text-emerald-700">{state}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-auto pt-3 rounded-full">
+                    <div className="rounded-full py-2.5 text-center text-xs font-bold text-white" style={{ backgroundColor: '#f97316' }}>
+                      Submit Application
+                    </div>
                   </div>
                 </div>
               </div>
