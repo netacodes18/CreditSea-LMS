@@ -1,19 +1,19 @@
 import StatusBadge from '@/components/StatusBadge';
-import { LayoutDashboard, CheckSquare, Banknote, HandCoins, BarChart3, FileStack, TrendingUp, Wallet } from 'lucide-react';
+import { LayoutDashboard, FileStack, Banknote, Receipt, FileText, TrendingUp, Wallet } from 'lucide-react';
 
 const NAV = [
-  { name: 'Overview', icon: LayoutDashboard, active: true },
-  { name: 'Sanction Queue', icon: CheckSquare },
-  { name: 'Disbursement', icon: Banknote },
-  { name: 'Collection', icon: HandCoins },
-  { name: 'Sales', icon: BarChart3 },
+  { name: 'Dashboard', icon: LayoutDashboard, active: true },
+  { name: 'Loans', icon: FileStack },
+  { name: 'Applications', icon: FileText },
+  { name: 'Payments', icon: Receipt },
+  { name: 'Documents', icon: Banknote },
 ];
 
 const KPIS = [
-  { icon: FileStack, label: 'Total loans', value: '128', accent: '#f97316' },
-  { icon: TrendingUp, label: 'Awaiting sanction', value: '14', accent: '#d97706' },
-  { icon: Banknote, label: 'Sanctioned', value: '31', accent: '#2563eb' },
-  { icon: Wallet, label: 'Total volume', value: '₹2.46 Cr', accent: '#059669' },
+  { icon: FileStack, label: 'Active loans', value: '128', accent: '#f97316' },
+  { icon: TrendingUp, label: 'In review', value: '14', accent: '#d97706' },
+  { icon: Banknote, label: 'Approved', value: '31', accent: '#2563eb' },
+  { icon: Wallet, label: 'Total value', value: '₹2.46 Cr', accent: '#059669' },
 ];
 
 const ROWS = [
@@ -35,7 +35,7 @@ export default function DashboardPreview() {
         </div>
         <div className="flex-1 flex justify-center">
           <div className="px-3 py-1 rounded-md bg-white border border-[var(--line)] text-[11px] text-[var(--ink)]/45 font-mono">
-            lms.app/admin/dashboard
+            lms.app/dashboard
           </div>
         </div>
         <div className="w-12" />
@@ -67,8 +67,8 @@ export default function DashboardPreview() {
 
         {/* Content */}
         <div className="flex-1 p-4 sm:p-5 min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink)]/40">Operations</p>
-          <h3 className="text-lg font-bold text-[var(--ink)] tracking-tight">Command Center</h3>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink)]/40">Loan portfolio</p>
+          <h3 className="text-lg font-bold text-[var(--ink)] tracking-tight">Dashboard</h3>
 
           <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {KPIS.map((k) => (
