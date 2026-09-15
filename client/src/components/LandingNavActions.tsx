@@ -23,19 +23,18 @@ export default function LandingNavActions({ variant = 'nav' }: { variant?: 'nav'
     }
     if (user) {
       return (
-        <Link href={dashboardHref} className="neo-btn px-6 py-3.5 text-sm">
+        <Link href={dashboardHref} className="neo-btn px-7 py-3.5 text-sm w-full sm:w-auto">
           <LayoutDashboard className="w-4 h-4" /> Go to your dashboard
         </Link>
       );
     }
     return (
       <>
-        <Link href="/register" className="neo-btn px-6 py-3.5 text-sm">
-          Explore the platform <ArrowRight className="w-4 h-4" />
+        <Link href="/register" className="neo-btn px-7 py-3.5 text-sm w-full sm:w-auto">
+          Start your application <ArrowRight className="w-4 h-4" />
         </Link>
-        <Link href="/login" className="text-sm font-bold text-[var(--ink)] group px-4 py-3">
-          Sign in to your dashboard
-          <span aria-hidden="true" className="group-hover:translate-x-1 inline-block transition-transform ml-1">→</span>
+        <Link href="/login" className="neo-btn-ghost px-7 py-3.5 text-sm w-full sm:w-auto">
+          Sign in
         </Link>
       </>
     );
