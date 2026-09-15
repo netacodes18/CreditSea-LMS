@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.*
+
+# env
+.env
+.env.local
+.env.*.local
+
+# server build output & uploads
+server/dist/
+server/uploads/*
+!server/uploads/.gitkeep
+
+# next.js
+client/.next/
+client/out/
+client/next-env.d.ts
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
