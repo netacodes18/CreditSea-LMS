@@ -102,44 +102,45 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-3 text-slate-400">
-          <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
-          <p className="text-sm">Loading profile...</p>
+        <div className="neo-card flex flex-col items-center gap-3 px-10 py-8">
+          <Loader2 className="w-7 h-7 animate-spin text-[var(--ink)]" />
+          <p className="text-sm font-bold uppercase tracking-wide text-[var(--ink)]">Loading profile…</p>
         </div>
       </div>
     );
   }
 
-  const inputClass = "block w-full rounded-xl border-0 py-2.5 px-3.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm transition-shadow";
+  const inputClass = "block w-full rounded-xl border border-[var(--line)] bg-white py-2.5 px-3.5 text-[var(--ink)] font-medium placeholder-[var(--ink)]/40 focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all sm:text-sm";
+  const inputShadow = { boxShadow: '0 1px 2px rgba(15,32,51,0.06)' };
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-indigo-500 mb-1">Borrower Portal</p>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Profile</h1>
-        <p className="text-slate-500 mt-2">Complete your profile details to evaluate your loan eligibility.</p>
+        <p className="text-xs font-bold tracking-widest uppercase text-[var(--ink)]/50 mb-1">Borrower Portal</p>
+        <h1 className="text-3xl font-bold text-[var(--ink)] tracking-tight">My Profile</h1>
+        <p className="text-[var(--ink)]/60 mt-2 font-medium">Complete your profile details to evaluate your loan eligibility.</p>
       </div>
 
       {error && (
-        <div className="card-surface p-4 border-rose-100 bg-rose-50/60 text-rose-700 flex items-start gap-2 animate-scale-in">
+        <div className="neo-card p-4 flex items-start gap-2 animate-scale-in" style={{ backgroundColor: 'var(--danger)', color: '#fff' }}>
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-          <span className="text-sm">{error}</span>
+          <span className="text-sm font-bold">{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="card-surface p-4 border-emerald-100 bg-emerald-50/60 text-emerald-700 flex items-start gap-2 animate-scale-in">
+        <div className="neo-card p-4 flex items-start gap-2 animate-scale-in" style={{ backgroundColor: '#059669', color: 'var(--ink)' }}>
           <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
-          <span className="text-sm">{success}</span>
+          <span className="text-sm font-bold">{success}</span>
         </div>
       )}
 
       {/* BRE Status Banner */}
       {formData.eligibilityStatus && formData.eligibilityStatus !== 'NOT_EVALUATED' && (
-        <div className="card-surface p-5">
+        <div className="neo-card p-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-indigo-500" />
+            <h3 className="font-bold text-[var(--ink)] flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5" style={{ color: '#2563eb' }} />
               Eligibility Status
             </h3>
             <StatusBadge status={formData.eligibilityStatus} />
@@ -147,8 +148,8 @@ export default function ProfilePage() {
           {formData.eligibilityStatus === 'FAILED' && formData.eligibilityReasons && (
             <ul className="mt-3 space-y-1.5 pl-1">
               {formData.eligibilityReasons.map((reason, idx) => (
-                <li key={idx} className="text-sm text-slate-600 flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+                <li key={idx} className="text-sm text-[var(--ink)]/70 font-medium flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: 'var(--danger)' }} />
                   {reason}
                 </li>
               ))}
@@ -157,11 +158,11 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <form onSubmit={handleSave} className="card-surface p-6 sm:p-8">
+      <form onSubmit={handleSave} className="neo-card p-6 sm:p-8">
         <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6">
 
           <div className="sm:col-span-4">
-            <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
+            <label htmlFor="fullName" className="block text-sm font-bold text-[var(--ink)] mb-1.5">Full Name</label>
             <input
               type="text"
               id="fullName"
@@ -169,11 +170,12 @@ export default function ProfilePage() {
               value={formData.fullName}
               onChange={(e) => setFormData({...formData, fullName: e.target.value})}
               className={inputClass}
+              style={inputShadow}
             />
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="pan" className="block text-sm font-medium text-slate-700 mb-1.5">PAN Number</label>
+            <label htmlFor="pan" className="block text-sm font-bold text-[var(--ink)] mb-1.5">PAN Number</label>
             <input
               type="text"
               id="pan"
@@ -183,11 +185,12 @@ export default function ProfilePage() {
               value={formData.pan}
               onChange={(e) => setFormData({...formData, pan: e.target.value.toUpperCase()})}
               className={`${inputClass} uppercase`}
+              style={inputShadow}
             />
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="dob" className="block text-sm font-medium text-slate-700 mb-1.5">Date of Birth</label>
+            <label htmlFor="dob" className="block text-sm font-bold text-[var(--ink)] mb-1.5">Date of Birth</label>
             <input
               type="date"
               id="dob"
@@ -196,11 +199,12 @@ export default function ProfilePage() {
               value={formData.dob}
               onChange={(e) => setFormData({...formData, dob: e.target.value})}
               className={inputClass}
+              style={inputShadow}
             />
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="salary" className="block text-sm font-medium text-slate-700 mb-1.5">Monthly Salary (INR)</label>
+            <label htmlFor="salary" className="block text-sm font-bold text-[var(--ink)] mb-1.5">Monthly Salary (INR)</label>
             <input
               type="number"
               id="salary"
@@ -209,17 +213,19 @@ export default function ProfilePage() {
               value={formData.monthlySalaryPaise / 100} // Convert paise to INR for display
               onChange={(e) => setFormData({...formData, monthlySalaryPaise: Number(e.target.value) * 100})}
               className={inputClass}
+              style={inputShadow}
             />
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="employmentMode" className="block text-sm font-medium text-slate-700 mb-1.5">Employment Mode</label>
+            <label htmlFor="employmentMode" className="block text-sm font-bold text-[var(--ink)] mb-1.5">Employment Mode</label>
             <select
               id="employmentMode"
               required
               value={formData.employmentMode}
               onChange={(e) => setFormData({...formData, employmentMode: e.target.value})}
               className={inputClass}
+              style={inputShadow}
             >
               <option value="SALARIED">Salaried</option>
               <option value="SELF_EMPLOYED">Self Employed</option>
@@ -228,12 +234,12 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-slate-100 pt-6">
+        <div className="mt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-[var(--line)] pt-6">
           <button
             type="button"
             onClick={handleEvaluate}
             disabled={evaluating || !formData.fullName || formData.eligibilityStatus === 'PASSED'}
-            className="w-full sm:w-auto rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-50 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
+            className="w-full sm:w-auto neo-btn-ghost px-4 py-2.5 text-sm disabled:opacity-50"
           >
             {evaluating && <Loader2 className="w-4 h-4 animate-spin" />}
             {evaluating ? 'Evaluating...' : 'Check Eligibility'}
@@ -241,7 +247,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full sm:w-auto btn-gradient px-6 py-2.5 text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full sm:w-auto neo-btn px-6 py-2.5 text-sm disabled:opacity-50"
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             {saving ? 'Saving...' : 'Save Profile'}

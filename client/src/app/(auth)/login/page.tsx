@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
-import { Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 
 const ROLE_LANDING: Record<string, string> = {
   BORROWER: '/borrower/dashboard',
@@ -44,67 +44,71 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen flex bg-[var(--paper)]">
       {/* Brand panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center p-16 text-white"
-        style={{ background: 'linear-gradient(160deg, var(--ink-950), var(--ink-900) 60%, #2e1065)' }}>
-        <div className="absolute inset-0 mesh-bg opacity-60" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-fuchsia-600/30 blur-3xl animate-float" />
-        <div className="absolute -top-16 -right-10 w-64 h-64 rounded-full bg-indigo-500/30 blur-3xl animate-float" style={{ animationDelay: '1.5s' }} />
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center p-16 bg-[var(--ink)] border-r border-[var(--line)]">
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '32px 32px' }}
+        />
+        <div className="absolute top-10 right-10 neo-chip animate-float" style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', borderColor: 'rgba(255,255,255,0.2)' }}>
+          JWT + bcrypt
+        </div>
+        <div className="absolute bottom-16 left-10 neo-chip animate-float" style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', borderColor: 'rgba(255,255,255,0.2)', animationDelay: '0.5s' }}>
+          Role-based access
+        </div>
+
         <div className="relative max-w-md animate-fade-up">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-extrabold text-xl shadow-glow mb-8 animate-gradient"
-            style={{ backgroundImage: 'linear-gradient(135deg, #7c3aed, #db2777, #6366f1)' }}>
+          <div className="w-14 h-14 rounded-xl flex items-center justify-center text-[var(--ink)] font-bold text-2xl border border-white/25 mb-8" style={{ backgroundColor: '#f97316' }}>
             L
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight leading-tight">
-            Welcome back to <span className="text-gradient animate-gradient">LMS</span>
+          <h1 className="text-4xl font-bold tracking-tight leading-tight text-white">
+            Welcome back to <span style={{ color: '#f97316' }}>LMS</span>
           </h1>
-          <p className="mt-4 text-slate-400 leading-relaxed">
+          <p className="mt-6 text-white/70 leading-relaxed font-medium">
             Sign in to continue your application, or step into your operations console — sanction,
             disburse, and collect, all role-gated end to end.
           </p>
-          <div className="mt-10 flex items-center gap-2 text-xs text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            Secured with JWT + bcrypt
-          </div>
         </div>
       </div>
 
       {/* Form panel */}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm animate-fade-up">
-          <h2 className="text-2xl font-extrabold text-slate-900">Sign in to your account</h2>
-          <p className="mt-2 text-sm text-slate-500">
+          <h2 className="text-3xl font-bold text-[var(--ink)] tracking-tight">Sign in</h2>
+          <p className="mt-2 text-sm text-[var(--ink)]/60 font-medium">
             Or{' '}
-            <Link href="/register" className="font-semibold text-violet-600 hover:text-violet-500">
+            <Link href="/register" className="font-bold text-[var(--ink)] underline decoration-2 decoration-[#f97316] underline-offset-4">
               register a new borrower account
             </Link>
           </p>
 
           <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-[var(--ink)]/50 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="w-full rounded-xl border border-slate-200 pl-10 pr-3 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all"
+                className="w-full bg-white rounded-xl border border-[var(--line)] pl-10 pr-3 py-3 text-sm text-[var(--ink)] placeholder-[var(--ink)]/40 focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all"
+                style={{ boxShadow: '0 1px 2px rgba(15,32,51,0.06)' }}
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-[var(--ink)]/50 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 required
-                className="w-full rounded-xl border border-slate-200 pl-10 pr-3 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/20 transition-all"
+                className="w-full bg-white rounded-xl border border-[var(--line)] pl-10 pr-3 py-3 text-sm text-[var(--ink)] placeholder-[var(--ink)]/40 focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all"
+                style={{ boxShadow: '0 1px 2px rgba(15,32,51,0.06)' }}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -112,7 +116,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="text-sm text-rose-700 bg-rose-50 p-3 rounded-xl border border-rose-100">
+              <div className="text-sm text-white bg-[var(--danger)] font-bold p-3 rounded-xl border border-[var(--line)]" style={{ boxShadow: '0 1px 2px rgba(15,32,51,0.06)' }}>
                 {error}
               </div>
             )}
@@ -120,7 +124,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-gradient w-full flex items-center justify-center gap-2 py-3 text-sm disabled:opacity-60"
+              className="neo-btn w-full py-3.5 text-sm disabled:opacity-60"
             >
               {loading ? 'Signing in…' : (<>Sign in <ArrowRight className="w-4 h-4" /></>)}
             </button>

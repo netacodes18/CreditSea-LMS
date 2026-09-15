@@ -7,10 +7,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LayoutDashboard, CheckSquare, Banknote, HandCoins, BarChart3 } from 'lucide-react';
 
 const MODULES = [
-  { key: 'SANCTION', name: 'Sanction Queue', href: '/admin/loans', icon: CheckSquare, accent: '#8b5cf6' },
-  { key: 'DISBURSEMENT', name: 'Disbursement', href: '/disbursement/loans', icon: Banknote, accent: '#10b981' },
-  { key: 'COLLECTION', name: 'Collection', href: '/collection/dashboard', icon: HandCoins, accent: '#06b6d4' },
-  { key: 'SALES', name: 'Sales Dashboard', href: '/sales/dashboard', icon: BarChart3, accent: '#f59e0b' },
+  { key: 'SANCTION', name: 'Sanction Queue', href: '/admin/loans', icon: CheckSquare, accent: '#d97706' },
+  { key: 'DISBURSEMENT', name: 'Disbursement', href: '/disbursement/loans', icon: Banknote, accent: '#059669' },
+  { key: 'COLLECTION', name: 'Collection', href: '/collection/dashboard', icon: HandCoins, accent: '#0891b2' },
+  { key: 'SALES', name: 'Sales Dashboard', href: '/sales/dashboard', icon: BarChart3, accent: '#f97316' },
 ] as const;
 
 export default function OperationsLayout({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) {
@@ -38,8 +38,8 @@ function OperationsLayoutInner({ children }: { children: React.ReactNode }) {
   ];
 
   const accent = user?.role === 'ADMIN'
-    ? '#7c3aed'
-    : (MODULES.find((m) => m.key === user?.role)?.accent ?? '#7c3aed');
+    ? '#f97316'
+    : (MODULES.find((m) => m.key === user?.role)?.accent ?? '#f97316');
 
   return (
     <PortalLayout navItems={navItems} portalName="Operations Portal" accent={accent}>

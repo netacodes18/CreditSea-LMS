@@ -78,55 +78,57 @@ export default function PaymentsPage() {
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto flex items-center justify-center py-24">
-        <div className="flex flex-col items-center gap-3 text-slate-400">
-          <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
-          <p className="text-sm">Loading payments...</p>
+        <div className="neo-card flex flex-col items-center gap-3 px-10 py-8">
+          <Loader2 className="w-7 h-7 animate-spin text-[var(--ink)]" />
+          <p className="text-sm font-bold uppercase tracking-wide text-[var(--ink)]">Loading payments…</p>
         </div>
       </div>
     );
   }
 
   const selectedLoan = loans.find(l => l._id === selectedLoanId);
-  const inputClass = "mt-1.5 block w-full rounded-xl border-0 py-2.5 px-3.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm transition-shadow";
+  const inputClass = "mt-1.5 block w-full rounded-xl border border-[var(--line)] bg-white py-2.5 px-3.5 text-[var(--ink)] font-medium focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all sm:text-sm";
+  const inputShadow = { boxShadow: '0 1px 2px rgba(15,32,51,0.06)' };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-indigo-500 mb-1">Borrower Portal</p>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payments</h1>
-        <p className="mt-2 text-slate-500">View your active loans and submit EMI payments.</p>
+        <p className="text-xs font-bold tracking-widest uppercase text-[var(--ink)]/50 mb-1">Borrower Portal</p>
+        <h1 className="text-3xl font-bold text-[var(--ink)] tracking-tight">Payments</h1>
+        <p className="mt-2 text-[var(--ink)]/60 font-medium">View your active loans and submit EMI payments.</p>
       </div>
 
       {error && (
-        <div className="card-surface p-4 border-rose-100 bg-rose-50/60 text-rose-700 flex items-start gap-2 animate-scale-in">
+        <div className="neo-card p-4 flex items-start gap-2 animate-scale-in" style={{ backgroundColor: 'var(--danger)', color: '#fff' }}>
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-          <span className="text-sm">{error}</span>
+          <span className="text-sm font-bold">{error}</span>
         </div>
       )}
       {success && (
-        <div className="card-surface p-4 border-emerald-100 bg-emerald-50/60 text-emerald-700 flex items-start gap-2 animate-scale-in">
+        <div className="neo-card p-4 flex items-start gap-2 animate-scale-in" style={{ backgroundColor: '#059669', color: 'var(--ink)' }}>
           <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" />
-          <span className="text-sm">{success}</span>
+          <span className="text-sm font-bold">{success}</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
         {/* Make Payment Form */}
-        <div className="card-surface p-6 sm:p-8">
-          <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-indigo-500" /> Make a Payment
+        <div className="neo-card p-6 sm:p-8">
+          <h2 className="text-lg font-bold text-[var(--ink)] mb-6 flex items-center gap-2">
+            <Wallet className="w-5 h-5" style={{ color: '#2563eb' }} /> Make a Payment
           </h2>
           {loans.length === 0 ? (
-            <p className="text-sm text-slate-400">You have no active disbursed loans requiring payment.</p>
+            <p className="text-sm text-[var(--ink)]/50 font-bold">You have no active disbursed loans requiring payment.</p>
           ) : (
             <form onSubmit={handlePayment} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700">Select Loan</label>
+                <label className="block text-sm font-bold text-[var(--ink)]">Select Loan</label>
                 <select
                   value={selectedLoanId}
                   onChange={(e) => setSelectedLoanId(e.target.value)}
                   className={inputClass}
+                  style={inputShadow}
                 >
                   {loans.map(loan => (
                     <option key={loan._id} value={loan._id}>
@@ -137,20 +139,20 @@ export default function PaymentsPage() {
               </div>
 
               {selectedLoan && (
-                <div className="p-4 rounded-xl bg-indigo-50/60 border border-indigo-100 space-y-1.5">
-                  <p className="text-sm text-indigo-900 flex justify-between">
+                <div className="p-4 rounded-xl border border-[var(--line)] space-y-1.5" style={{ backgroundColor: 'var(--paper)' }}>
+                  <p className="text-sm text-[var(--ink)] flex justify-between font-medium">
                     <span>Outstanding Balance:</span>
                     <span className="font-bold">₹{(selectedLoan.outstandingPaise / 100).toLocaleString()}</span>
                   </p>
-                  <p className="text-sm text-indigo-900 flex justify-between">
+                  <p className="text-sm text-[var(--ink)] flex justify-between font-medium">
                     <span>Expected EMI:</span>
-                    <span className="font-medium">₹{(selectedLoan.emiPaise / 100).toLocaleString()}</span>
+                    <span className="font-bold">₹{(selectedLoan.emiPaise / 100).toLocaleString()}</span>
                   </p>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-700">Payment Amount (₹)</label>
+                <label className="block text-sm font-bold text-[var(--ink)]">Payment Amount (₹)</label>
                 <input
                   type="number"
                   min="1"
@@ -158,18 +160,20 @@ export default function PaymentsPage() {
                   value={amount}
                   onChange={(e) => setAmount(Number(e.target.value))}
                   className={inputClass}
+                  style={inputShadow}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700">Bank UTR / Reference ID</label>
+                <label className="block text-sm font-bold text-[var(--ink)]">Bank UTR / Reference ID</label>
                 <input
                   type="text"
                   value={utr}
                   onChange={(e) => setUtr(e.target.value)}
                   placeholder="e.g. UPI123456789"
                   className={`${inputClass} uppercase`}
+                  style={inputShadow}
                   required
                 />
               </div>
@@ -177,7 +181,7 @@ export default function PaymentsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full btn-gradient px-3 py-3 text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full neo-btn px-3 py-3 text-sm disabled:opacity-50"
               >
                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                 {submitting ? 'Processing...' : 'Submit Payment'}
@@ -187,33 +191,33 @@ export default function PaymentsPage() {
         </div>
 
         {/* Payment History */}
-        <div className="card-surface overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-slate-100">
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-indigo-500" /> Payment History
+        <div className="neo-card overflow-hidden flex flex-col">
+          <div className="p-6 border-b border-[var(--line)]">
+            <h2 className="text-lg font-bold text-[var(--ink)] flex items-center gap-2">
+              <Receipt className="w-5 h-5" style={{ color: '#2563eb' }} /> Payment History
             </h2>
           </div>
           <div className="flex-1 overflow-y-auto max-h-[500px]">
             {payments.length === 0 ? (
               <div className="p-10 text-center">
-                <Receipt className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm text-slate-400">No payment history found.</p>
+                <Receipt className="w-8 h-8 text-[var(--ink)]/30 mx-auto mb-2" />
+                <p className="text-sm text-[var(--ink)]/50 font-bold">No payment history found.</p>
               </div>
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="divide-y divide-[var(--line)]">
                 {payments.map(p => (
-                  <li key={p._id} className="p-6 hover:bg-slate-50/60 transition-colors">
+                  <li key={p._id} className="p-6 hover:bg-[var(--paper)] transition-colors">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">
+                        <p className="text-sm font-bold text-[var(--ink)]">
                           ₹{(p.amountPaise / 100).toLocaleString()}
                         </p>
-                        <p className="text-xs text-slate-500 mt-1">Loan: {p.applicationId.slice(-6).toUpperCase()}</p>
-                        <p className="text-xs text-slate-500 font-mono mt-1">UTR: {p.utr}</p>
+                        <p className="text-xs text-[var(--ink)]/60 mt-1 font-medium">Loan: {p.applicationId.slice(-6).toUpperCase()}</p>
+                        <p className="text-xs text-[var(--ink)]/60 font-mono mt-1 font-bold">UTR: {p.utr}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-slate-500">{new Date(p.paymentDate).toLocaleDateString()}</p>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20 mt-2">
+                        <p className="text-sm text-[var(--ink)]/60 font-medium">{new Date(p.paymentDate).toLocaleDateString()}</p>
+                        <span className="neo-chip mt-2" style={{ backgroundColor: '#059669', color: 'var(--ink)' }}>
                           <CheckCircle className="w-3 h-3" /> Success
                         </span>
                       </div>

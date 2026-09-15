@@ -43,27 +43,27 @@ export default function ApplyPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-indigo-500 mb-1">Borrower Portal</p>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Apply for a Loan</h1>
-        <p className="mt-2 text-slate-500">Select your required loan amount and repayment tenure.</p>
+        <p className="text-xs font-bold tracking-widest uppercase text-[var(--ink)]/50 mb-1">Borrower Portal</p>
+        <h1 className="text-3xl font-bold text-[var(--ink)] tracking-tight">Apply for a Loan</h1>
+        <p className="mt-2 text-[var(--ink)]/60 font-medium">Select your required loan amount and repayment tenure.</p>
       </div>
 
       {error && (
-        <div className="card-surface p-4 border-rose-100 bg-rose-50/60 text-rose-700 flex items-start gap-2 animate-scale-in">
+        <div className="neo-card p-4 flex items-start gap-2 animate-scale-in" style={{ backgroundColor: 'var(--danger)', color: '#fff' }}>
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-          <span className="text-sm">{error}</span>
+          <span className="text-sm font-bold">{error}</span>
         </div>
       )}
 
-      <div className="card-surface p-6 sm:p-8">
+      <div className="neo-card p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-9">
 
           <div>
             <div className="flex justify-between items-center mb-3">
-              <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                <IndianRupee className="w-4 h-4 text-indigo-500" /> Loan Amount
+              <label className="flex items-center gap-1.5 text-sm font-bold text-[var(--ink)]">
+                <IndianRupee className="w-4 h-4" style={{ color: '#2563eb' }} /> Loan Amount
               </label>
-              <span className="text-xl font-extrabold text-gradient-static">₹{amount.toLocaleString()}</span>
+              <span className="text-xl font-bold text-[var(--ink)]">₹{amount.toLocaleString()}</span>
             </div>
             <input
               type="range"
@@ -74,7 +74,7 @@ export default function ApplyPage() {
               onChange={(e) => setAmount(Number(e.target.value))}
               className="brand-range w-full cursor-pointer"
             />
-            <div className="flex justify-between text-xs text-slate-400 mt-2">
+            <div className="flex justify-between text-xs text-[var(--ink)]/50 mt-2 font-bold">
               <span>₹50,000</span>
               <span>₹5,00,000</span>
             </div>
@@ -82,10 +82,10 @@ export default function ApplyPage() {
 
           <div>
             <div className="flex justify-between items-center mb-3">
-              <label className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                <CalendarDays className="w-4 h-4 text-indigo-500" /> Tenure (Days)
+              <label className="flex items-center gap-1.5 text-sm font-bold text-[var(--ink)]">
+                <CalendarDays className="w-4 h-4" style={{ color: '#2563eb' }} /> Tenure (Days)
               </label>
-              <span className="text-xl font-extrabold text-gradient-static">{tenureDays} days</span>
+              <span className="text-xl font-bold text-[var(--ink)]">{tenureDays} days</span>
             </div>
             <input
               type="range"
@@ -96,36 +96,34 @@ export default function ApplyPage() {
               onChange={(e) => setTenureDays(Number(e.target.value))}
               className="brand-range w-full cursor-pointer"
             />
-            <div className="flex justify-between text-xs text-slate-400 mt-2">
+            <div className="flex justify-between text-xs text-[var(--ink)]/50 mt-2 font-bold">
               <span>30 days</span>
               <span>365 days</span>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl p-[1.5px] bg-gradient-to-br from-violet-400 via-fuchsia-400 to-indigo-400">
-            <div className="rounded-2xl bg-white p-6 space-y-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold tracking-widest uppercase text-indigo-500 mb-1">
-                <Sparkles className="w-3.5 h-3.5" /> Repayment Summary
-              </div>
-              <div className="flex justify-between text-sm text-slate-500">
-                <span>Principal</span>
-                <span className="font-medium text-slate-900">₹{P.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-sm text-slate-500">
-                <span>Interest (12% p.a., Simple Interest)</span>
-                <span className="font-medium text-slate-900">₹{simpleInterest.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center border-t border-slate-100 pt-3">
-                <span className="text-sm font-medium text-slate-500 uppercase tracking-wide">Total Repayment</span>
-                <span className="text-2xl font-extrabold text-gradient-static">₹{totalRepayment.toLocaleString()}</span>
-              </div>
+          <div className="neo-card p-6 space-y-3" style={{ backgroundColor: 'var(--paper)' }}>
+            <div className="flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase text-[var(--ink)]/60 mb-1">
+              <Sparkles className="w-3.5 h-3.5" /> Repayment Summary
+            </div>
+            <div className="flex justify-between text-sm text-[var(--ink)]/70 font-medium">
+              <span>Principal</span>
+              <span className="font-bold text-[var(--ink)]">₹{P.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm text-[var(--ink)]/70 font-medium">
+              <span>Interest (12% p.a., Simple Interest)</span>
+              <span className="font-bold text-[var(--ink)]">₹{simpleInterest.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center rounded-xl border border-[var(--line)] px-4 py-3 mt-1" style={{ backgroundColor: 'var(--primary)' }}>
+              <span className="text-sm font-bold text-[var(--ink)] uppercase tracking-wide">Total Repayment</span>
+              <span className="text-2xl font-bold text-[var(--ink)]">₹{totalRepayment.toLocaleString()}</span>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full btn-gradient px-3 py-3.5 text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full neo-btn px-3 py-3.5 text-sm disabled:opacity-50"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
             {submitting ? 'Submitting...' : 'Submit Application'}
