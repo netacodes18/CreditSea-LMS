@@ -116,7 +116,7 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Link href="/admin/loans" className="inline-flex items-center gap-1.5 text-sm font-bold text-[var(--ink)]/60 hover:text-[var(--ink)] transition-colors">
+      <Link href="/sanction/loans"className="inline-flex items-center gap-1.5 text-sm font-bold text-[var(--ink)]/60 hover:text-[var(--ink)] transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to all loans
       </Link>
 

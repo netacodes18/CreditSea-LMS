@@ -7,15 +7,7 @@ import api from '@/lib/api';
 import Link from 'next/link';
 import { Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import AuthAside from '@/components/AuthAside';
-
-const ROLE_LANDING: Record<string, string> = {
-  BORROWER: '/borrower/dashboard',
-  ADMIN: '/admin/dashboard',
-  SANCTION: '/admin/dashboard',
-  DISBURSEMENT: '/admin/dashboard',
-  COLLECTION: '/collection/dashboard',
-  SALES: '/sales/dashboard',
-};
+import { ROLE_LANDING } from '@/lib/roles';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

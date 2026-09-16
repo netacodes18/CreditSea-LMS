@@ -17,7 +17,7 @@ interface Loan {
 }
 
 const MODULE_LINKS = [
-  { name: 'Sanction Queue', href: '/admin/loans', icon: CheckSquare, accent: '#d97706', desc: 'Review & approve applied loans' },
+  { name: 'Sanction Queue', href: '/sanction/loans', icon: CheckSquare, accent: '#d97706', desc: 'Review & approve applied loans' },
   { name: 'Disbursement', href: '/disbursement/loans', icon: Banknote, accent: '#059669', desc: 'Release funds for sanctioned loans' },
   { name: 'Collection', href: '/collection/dashboard', icon: HandCoins, accent: '#0891b2', desc: 'Record repayments & track balances' },
   { name: 'Sales', href: '/sales/dashboard', icon: BarChart3, accent: '#f97316', desc: 'Leads & conversion metrics' },

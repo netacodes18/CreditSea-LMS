@@ -87,7 +87,7 @@ export default function AdminLoansPage() {
                       <StatusBadge status={loan.loanStatus} />
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                      <Link href={`/admin/loans/${loan._id}`} className="inline-flex items-center gap-1 font-bold hover:gap-1.5 transition-all text-[var(--ink)]">
+                      <Link href={`/sanction/loans/${loan._id}`} className="inline-flex items-center gap-1 font-bold hover:gap-1.5 transition-all text-[var(--ink)]">
                         Review <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </td>

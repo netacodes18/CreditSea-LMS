@@ -3,15 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight, KeyRound, LayoutDashboard, FilePlus2 } from 'lucide-react';
-
-const ROLE_LANDING: Record<string, string> = {
-  BORROWER: '/borrower/dashboard',
-  ADMIN: '/admin/dashboard',
-  SANCTION: '/admin/dashboard',
-  DISBURSEMENT: '/admin/dashboard',
-  COLLECTION: '/collection/dashboard',
-  SALES: '/sales/dashboard',
-};
+import { ROLE_LANDING } from '@/lib/roles';
 
 export default function FinalCta({ hasToken = true }: { hasToken?: boolean }) {
   const { user: verifiedUser, loading, cachedUser } = useAuth();

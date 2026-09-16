@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LayoutDashboard, CheckSquare, Banknote, HandCoins, BarChart3 } from 'lucide-react';
 
 const MODULES = [
-  { key: 'SANCTION', name: 'Sanction Queue', href: '/admin/loans', icon: CheckSquare, accent: '#d97706' },
+  { key: 'SANCTION', name: 'Sanction Queue', href: '/sanction/loans', icon: CheckSquare, accent: '#d97706' },
   { key: 'DISBURSEMENT', name: 'Disbursement', href: '/disbursement/loans', icon: Banknote, accent: '#059669' },
   { key: 'COLLECTION', name: 'Collection', href: '/collection/dashboard', icon: HandCoins, accent: '#0891b2' },
   { key: 'SALES', name: 'Sales Dashboard', href: '/sales/dashboard', icon: BarChart3, accent: '#f97316' },
@@ -29,11 +29,12 @@ function OperationsLayoutInner({ children }: { children: React.ReactNode }) {
     ? MODULES
     : MODULES.filter((m) => m.key === user?.role);
 
-  // Only roles with real access to /admin/* get the cross-module Overview link
+  // Cross-module Overview: Sanction gets its own URL, Admin and Disbursement share /admin/dashboard
   const hasOverview = user?.role === 'ADMIN' || user?.role === 'SANCTION' || user?.role === 'DISBURSEMENT';
+  const overviewHref = user?.role === 'SANCTION' ? '/sanction/dashboard' : '/admin/dashboard';
 
   const navItems = [
-    ...(hasOverview ? [{ name: 'Overview', href: '/admin/dashboard', icon: LayoutDashboard }] : []),
+    ...(hasOverview ? [{ name: 'Overview', href: overviewHref, icon: LayoutDashboard }] : []),
     ...visibleModules.map((m) => ({ name: m.name, href: m.href, icon: m.icon })),
   ];
 

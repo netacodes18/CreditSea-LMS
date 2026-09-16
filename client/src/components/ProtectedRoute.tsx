@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
+import { ROLE_LANDING } from '@/lib/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,9 +19,8 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
       if (!user) {
         router.push('/login');
       } else if (allowedRoles && !allowedRoles.includes(user.role)) {
-        // Redirect to dashboard based on role if they try to access an unauthorized route
-        if (user.role === 'BORROWER') router.push('/borrower/dashboard');
-        else router.push('/ops/dashboard'); // generic ops redirect
+        // Send them to their own portal instead of a page they can't use
+        router.push(ROLE_LANDING[user.role] || '/login');
       }
     }
   }, [user, loading, router, allowedRoles]);

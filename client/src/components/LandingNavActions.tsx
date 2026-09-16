@@ -3,15 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { LayoutDashboard, ArrowRight } from 'lucide-react';
-
-const ROLE_LANDING: Record<string, string> = {
-  BORROWER: '/borrower/dashboard',
-  ADMIN: '/admin/dashboard',
-  SANCTION: '/admin/dashboard',
-  DISBURSEMENT: '/admin/dashboard',
-  COLLECTION: '/collection/dashboard',
-  SALES: '/sales/dashboard',
-};
+import { ROLE_LANDING } from '@/lib/roles';
 
 export default function LandingNavActions({ variant = 'nav', hasToken = true }: { variant?: 'nav' | 'hero'; hasToken?: boolean }) {
   const { user: verifiedUser, loading, cachedUser } = useAuth();

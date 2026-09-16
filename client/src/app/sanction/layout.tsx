@@ -3,9 +3,9 @@
 import React from 'react';
 import OperationsLayout from '@/components/OperationsLayout';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function SanctionLayout({ children }: { children: React.ReactNode }) {
   return (
-    <OperationsLayout allowedRoles={['ADMIN', 'DISBURSEMENT']}>
+    <OperationsLayout allowedRoles={['ADMIN', 'SANCTION']}>
       {children}
     </OperationsLayout>
   );
