@@ -198,7 +198,7 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
 
       {/* Actions */}
       <div className="neo-card p-6">
-        <h2 className="text-lg font-bold text-[var(--ink)] mb-4">Admin Actions</h2>
+        <h2 className="text-lg font-bold text-[var(--ink)] mb-4">Actions</h2>
 
         {loan.loanStatus === 'APPLIED' && (
           <div>
