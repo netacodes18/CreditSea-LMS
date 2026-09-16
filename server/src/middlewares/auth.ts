@@ -42,8 +42,9 @@ export const requireRole = (roles: Role[]) => {
       return;
     }
 
-    // Admin can access everything in this system for ease of management
-    if (req.user.role === Role.ADMIN || roles.includes(req.user.role)) {
+    // Roles are explicit per route: every staff router lists ADMIN, borrower routes do not,
+    // so Admin reaches all dashboard modules but not the borrower portal API.
+    if (roles.includes(req.user.role)) {
       next();
     } else {
       res.status(403).json({ success: false, message: 'Forbidden: Insufficient permissions' });
