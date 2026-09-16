@@ -92,9 +92,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const logout = (req: Request, res: Response): void => {
-  res.cookie('token', 'none', {
-    expires: new Date(Date.now() + 10 * 1000),
+  // Delete the cookie outright, with the same attributes it was set with, so the browser
+  // drops it immediately (the old 10-second "none" cookie still looked like a session to the homepage)
+  res.clearCookie('token', {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
   });
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 };

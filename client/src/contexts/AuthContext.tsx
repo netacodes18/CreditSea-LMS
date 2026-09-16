@@ -76,16 +76,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error', error);
-    } finally {
-      setUser(null);
-      setCachedUser(null);
-      saveUserHint(null);
-      router.push('/login');
-    }
+    // Start clearing the server cookie, but update the UI immediately rather than waiting on the
+    // API (a cold Render start can take a while). An in-flight request survives client navigation.
+    const request = api.post('/auth/logout').catch((error) => console.error('Logout error', error));
+    setUser(null);
+    setCachedUser(null);
+    saveUserHint(null);
+    router.push('/login');
+    await request;
   };
 
   return (
