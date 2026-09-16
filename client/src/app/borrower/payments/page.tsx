@@ -145,8 +145,17 @@ export default function PaymentsPage() {
                     <span className="font-bold">₹{(selectedLoan.outstandingPaise / 100).toLocaleString()}</span>
                   </p>
                   <p className="text-sm text-[var(--ink)] flex justify-between font-medium">
-                    <span>Expected EMI:</span>
-                    <span className="font-bold">₹{(selectedLoan.emiPaise / 100).toLocaleString()}</span>
+                    {(() => {
+                      // Loans store a total repayment and a tenure in days, not an EMI — spread the total over the tenure's months
+                      const months = Math.max(1, Math.ceil((selectedLoan.tenureDays || 0) / 30));
+                      const emi = (selectedLoan.totalRepaymentPaise || 0) / months / 100;
+                      return (
+                        <>
+                          <span>Expected EMI <span className="text-[var(--ink)]/50">({months} {months === 1 ? 'month' : 'months'})</span>:</span>
+                          <span className="font-bold">₹{emi.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                        </>
+                      );
+                    })()}
                   </p>
                 </div>
               )}
