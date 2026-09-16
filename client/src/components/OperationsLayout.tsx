@@ -29,9 +29,12 @@ function OperationsLayoutInner({ children }: { children: React.ReactNode }) {
     ? MODULES
     : MODULES.filter((m) => m.key === user?.role);
 
-  // Cross-module Overview: Sanction gets its own URL, Admin and Disbursement share /admin/dashboard
+  // Cross-module Overview under each role's own URL (Admin keeps /admin/dashboard)
   const hasOverview = user?.role === 'ADMIN' || user?.role === 'SANCTION' || user?.role === 'DISBURSEMENT';
-  const overviewHref = user?.role === 'SANCTION' ? '/sanction/dashboard' : '/admin/dashboard';
+  const overviewHref =
+    user?.role === 'SANCTION' ? '/sanction/dashboard'
+    : user?.role === 'DISBURSEMENT' ? '/disbursement/dashboard'
+    : '/admin/dashboard';
 
   const navItems = [
     ...(hasOverview ? [{ name: 'Overview', href: overviewHref, icon: LayoutDashboard }] : []),

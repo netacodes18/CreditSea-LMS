@@ -5,7 +5,7 @@ import OperationsLayout from '@/components/OperationsLayout';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <OperationsLayout allowedRoles={['ADMIN', 'DISBURSEMENT']}>
+    <OperationsLayout allowedRoles={['ADMIN']}>
       {children}
     </OperationsLayout>
   );
