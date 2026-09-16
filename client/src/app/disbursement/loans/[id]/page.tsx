@@ -162,10 +162,29 @@ export default function DisbursementLoanDetail({ params }: { params: Promise<{ i
         ) : loan.loanStatus === 'DISBURSED' ? (
           <div className="neo-card-sm p-4 flex items-start gap-3" style={{ backgroundColor: ACCENT }}>
             <CheckCheck className="w-5 h-5 mt-0.5 shrink-0 text-[var(--ink)]" />
-            <p className="text-sm font-bold text-[var(--ink)]">
-              Funds disbursed successfully. <br/>
-              <span className="font-medium mt-1 block">Reference: {loan.disbursementReference}</span>
-            </p>
+            <div className="text-sm font-bold text-[var(--ink)]">
+              Funds disbursed successfully.
+              <p className="font-medium mt-1">Reference: {loan.disbursementReference}</p>
+              {loan.disbursedAt && (
+                <p className="font-medium mt-1">Disbursed on: {new Date(loan.disbursedAt).toLocaleDateString()}</p>
+              )}
+            </div>
+          </div>
+        ) : loan.loanStatus === 'CLOSED' ? (
+          <div className="neo-card-sm p-4 flex items-start gap-3" style={{ backgroundColor: '#e6f4ee' }}>
+            <CheckCheck className="w-5 h-5 mt-0.5 shrink-0" style={{ color: ACCENT }} />
+            <div className="text-sm font-bold text-[var(--ink)]">
+              Disbursed and fully repaid — this loan is now closed.
+              {loan.disbursementReference && (
+                <p className="font-medium mt-1">Reference: {loan.disbursementReference}</p>
+              )}
+              {loan.disbursedAt && (
+                <p className="font-medium mt-1">Disbursed on: {new Date(loan.disbursedAt).toLocaleDateString()}</p>
+              )}
+              {loan.closedAt && (
+                <p className="font-medium mt-1">Closed on: {new Date(loan.closedAt).toLocaleDateString()}</p>
+              )}
+            </div>
           </div>
         ) : (
           <div className="neo-card-sm p-4 text-[var(--ink)]/60 text-sm font-bold">
