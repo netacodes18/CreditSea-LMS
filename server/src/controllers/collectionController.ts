@@ -42,8 +42,10 @@ export const recordCollectionPayment = async (req: Request, res: Response): Prom
 
   try {
     const { id } = req.params;
-    const { amountPaise, utr } = req.body;
+    const { amountPaise } = req.body;
     const recordedBy = (req as any).user!.id; // Collection executive
+    // Normalize so 'utr001', 'UTR001' and ' UTR001 ' are all treated as the same UTR
+    const utr = typeof req.body.utr === 'string' ? req.body.utr.trim().toUpperCase() : req.body.utr;
 
     if (!amountPaise || !utr) {
       res.status(400).json({ success: false, message: 'amountPaise and utr are required' });

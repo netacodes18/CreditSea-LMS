@@ -191,7 +191,7 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
                   type="text"
                   required
                   value={paymentUtr}
-                  onChange={(e) => setPaymentUtr(e.target.value)}
+                  onChange={(e) => setPaymentUtr(e.target.value.toUpperCase())}
                   className="mt-1 block w-full rounded-lg border border-[var(--line)] py-2 px-3 text-[var(--ink)] font-bold outline-none focus:ring-0"
                   placeholder="e.g. UTR123456789"
                 />

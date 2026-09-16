@@ -14,7 +14,7 @@ const PaymentSchema: Schema = new Schema(
   {
     applicationId: { type: Schema.Types.ObjectId, ref: 'LoanApplication', required: true },
     amountPaise: { type: Number, required: true },
-    utr: { type: String, required: true, unique: true },
+    utr: { type: String, required: true, unique: true, trim: true, uppercase: true },
     paymentDate: { type: Date, required: true },
     recordedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   },

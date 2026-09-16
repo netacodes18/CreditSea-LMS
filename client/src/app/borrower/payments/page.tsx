@@ -180,7 +180,7 @@ export default function PaymentsPage() {
                 <input
                   type="text"
                   value={utr}
-                  onChange={(e) => setUtr(e.target.value)}
+                  onChange={(e) => setUtr(e.target.value.toUpperCase())}
                   placeholder="e.g. UPI123456789"
                   className={`${inputClass} uppercase`}
                   style={inputShadow}

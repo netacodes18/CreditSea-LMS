@@ -9,8 +9,10 @@ export const recordPayment = async (req: Request, res: Response): Promise<void> 
   session.startTransaction();
 
   try {
-    const { applicationId, amountPaise, utr } = req.body;
+    const { applicationId, amountPaise } = req.body;
     const borrowerId = req.user!.id;
+    // Normalize so 'utr001', 'UTR001' and ' UTR001 ' are all treated as the same UTR
+    const utr = typeof req.body.utr === 'string' ? req.body.utr.trim().toUpperCase() : req.body.utr;
 
     if (!applicationId || !amountPaise || !utr) {
       res.status(400).json({ success: false, message: 'applicationId, amountPaise, and utr are required' });
