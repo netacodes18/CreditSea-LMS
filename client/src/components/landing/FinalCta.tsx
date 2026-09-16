@@ -13,8 +13,9 @@ const ROLE_LANDING: Record<string, string> = {
   SALES: '/sales/dashboard',
 };
 
-export default function FinalCta() {
-  const { user, loading } = useAuth();
+export default function FinalCta({ hasToken = true }: { hasToken?: boolean }) {
+  const { user: verifiedUser, loading, cachedUser } = useAuth();
+  const user = verifiedUser ?? (loading ? cachedUser : null);
   const isBorrower = user?.role === 'BORROWER';
   const dashboardHref = user ? (ROLE_LANDING[user.role] || '/borrower/dashboard') : '/login';
 
@@ -49,7 +50,7 @@ export default function FinalCta() {
         <p className="mt-4 text-[var(--ink)]/60 max-w-lg mx-auto leading-relaxed">{copy.sub}</p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          {loading ? (
+          {hasToken && loading && !user ? (
             <div className="h-12 w-52 rounded-lg bg-[var(--ink)]/5 animate-pulse" />
           ) : user ? (
             <>

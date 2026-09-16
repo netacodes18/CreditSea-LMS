@@ -14,9 +14,11 @@ const ROLE_LANDING: Record<string, string> = {
 };
 
 export default function LandingNavActions({ variant = 'nav', hasToken = true }: { variant?: 'nav' | 'hero'; hasToken?: boolean }) {
-  const { user, loading } = useAuth();
-  
-  const isEffectivelyLoading = hasToken && loading;
+  const { user: verifiedUser, loading, cachedUser } = useAuth();
+  // While /auth/me is pending (slow on a cold Render start), show the last known user instead of a skeleton
+  const user = verifiedUser ?? (loading ? cachedUser : null);
+
+  const isEffectivelyLoading = hasToken && loading && !user;
   const dashboardHref = user ? (ROLE_LANDING[user.role] || '/borrower/dashboard') : '/login';
 
   if (variant === 'hero') {

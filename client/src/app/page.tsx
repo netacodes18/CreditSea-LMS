@@ -38,9 +38,9 @@ const SECURITY = [
 
 import { cookies } from 'next/headers';
 
-export default function Home() {
-  const cookieStore = cookies();
-  const hasToken = cookieStore.has('token');
+export default async function Home() {
+  // cookies() is async in Next.js 16; lets logged-out visitors skip the auth skeleton
+  const hasToken = (await cookies()).has('token');
 
   return (
     <div className="bg-[var(--paper)] min-h-screen overflow-x-hidden">
@@ -348,7 +348,7 @@ export default function Home() {
       {/* ---------- Final CTA ---------- */}
       <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <FinalCta />
+          <FinalCta hasToken={hasToken} />
         </div>
       </section>
 
