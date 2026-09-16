@@ -59,6 +59,13 @@ export const recordCollectionPayment = async (req: Request, res: Response): Prom
       return;
     }
 
+    if (!Number.isInteger(amountPaise)) {
+      res.status(400).json({ success: false, message: 'Payment amount must be a valid amount (max 2 decimal places).' });
+      await session.abortTransaction();
+      session.endSession();
+      return;
+    }
+
     // 1. Fetch loan application
     const loan = await LoanApplication.findById(id).session(session);
     if (!loan) {

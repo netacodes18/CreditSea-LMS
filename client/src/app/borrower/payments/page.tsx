@@ -58,7 +58,7 @@ export default function PaymentsPage() {
     try {
       const res = await api.post('/borrower/payments', {
         applicationId: selectedLoanId,
-        amountPaise: Number(amount) * 100,
+        amountPaise: Math.round(Number(amount) * 100),
         utr
       });
 
@@ -164,7 +164,8 @@ export default function PaymentsPage() {
                 <label className="block text-sm font-bold text-[var(--ink)]">Payment Amount (₹)</label>
                 <input
                   type="number"
-                  min="1"
+                  min="0.01"
+                  step="0.01"
                   max={selectedLoan ? selectedLoan.outstandingPaise / 100 : undefined}
                   value={amount}
                   onChange={(e) => setAmount(Number(e.target.value))}

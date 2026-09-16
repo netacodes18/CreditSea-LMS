@@ -52,7 +52,7 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
 
     try {
       const res = await api.post(`/collection/loans/${id}/payments`, {
-        amountPaise: Number(paymentAmount) * 100,
+        amountPaise: Math.round(Number(paymentAmount) * 100),
         utr: paymentUtr
       });
       if (res.data.success) {
@@ -165,7 +165,8 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
                 <div className="mt-1 flex gap-2 items-center">
                   <input
                     type="number"
-                    min="1"
+                    min="0.01"
+                    step="0.01"
                     max={loan.outstandingPaise / 100}
                     required
                     value={paymentAmount}
