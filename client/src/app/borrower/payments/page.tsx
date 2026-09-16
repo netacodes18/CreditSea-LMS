@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '@/lib/api';
+import { createIdempotencyKey } from '@/lib/idempotency';
 import { AlertCircle, CheckCircle2, Wallet, Receipt, Loader2, CheckCircle } from 'lucide-react';
 
 export default function PaymentsPage() {
@@ -16,6 +17,9 @@ export default function PaymentsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  // Same key across retries of one attempt so a resend can't record the payment twice;
+  // cleared on success (next payment gets a fresh key) and on a 422 (key was tied to different data).
+  const idempotencyKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -55,20 +59,32 @@ export default function PaymentsPage() {
     setError('');
     setSuccess('');
 
+    if (!idempotencyKeyRef.current) idempotencyKeyRef.current = createIdempotencyKey();
+
     try {
-      const res = await api.post('/borrower/payments', {
-        applicationId: selectedLoanId,
-        amountPaise: Math.round(Number(amount) * 100),
-        utr
-      });
+      const res = await api.post(
+        '/borrower/payments',
+        {
+          applicationId: selectedLoanId,
+          amountPaise: Math.round(Number(amount) * 100),
+          utr
+        },
+        { headers: { 'Idempotency-Key': idempotencyKeyRef.current } }
+      );
 
       if (res.data.success) {
+        idempotencyKeyRef.current = null; // done — the next payment gets a fresh key
         setSuccess('Payment recorded successfully!');
         setAmount('');
         setUtr('');
         fetchData(); // Refresh balances and history
       }
     } catch (err: any) {
+      if (err.response?.status === 422) {
+        // Key was already used for a different amount/UTR (e.g. the user edited the form after
+        // a failed attempt) — drop it so the next submit gets a fresh one instead of looping.
+        idempotencyKeyRef.current = null;
+      }
       setError(err.response?.data?.message || 'Payment failed');
     } finally {
       setSubmitting(false);

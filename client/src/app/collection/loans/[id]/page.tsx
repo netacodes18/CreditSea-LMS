@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { createIdempotencyKey } from '@/lib/idempotency';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
 import { ArrowLeft, Loader2, CheckCircle2, ReceiptText } from 'lucide-react';
@@ -22,6 +23,9 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
   const [paymentUtr, setPaymentUtr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  // Same key across retries of one attempt so a resend can't record the payment twice;
+  // cleared on success (next payment gets a fresh key) and on a 422 (key was tied to different data).
+  const idempotencyKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -50,17 +54,28 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
     setSubmitting(true);
     setPaymentError('');
 
+    if (!idempotencyKeyRef.current) idempotencyKeyRef.current = createIdempotencyKey();
+
     try {
-      const res = await api.post(`/collection/loans/${id}/payments`, {
-        amountPaise: Math.round(Number(paymentAmount) * 100),
-        utr: paymentUtr
-      });
+      const res = await api.post(
+        `/collection/loans/${id}/payments`,
+        {
+          amountPaise: Math.round(Number(paymentAmount) * 100),
+          utr: paymentUtr
+        },
+        { headers: { 'Idempotency-Key': idempotencyKeyRef.current } }
+      );
       if (res.data.success) {
+        idempotencyKeyRef.current = null; // done — the next payment gets a fresh key
         setPaymentAmount('');
         setPaymentUtr('');
         fetchData();
       }
     } catch (err: any) {
+      if (err.response?.status === 422) {
+        // Key was already used for a different amount/UTR (e.g. edited after a failed attempt)
+        idempotencyKeyRef.current = null;
+      }
       setPaymentError(err.response?.data?.message || 'Failed to record payment');
     } finally {
       setSubmitting(false);

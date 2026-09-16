@@ -5,6 +5,7 @@ import { createApplication, getMyApplications } from '../controllers/loanControl
 import { recordPayment, getPayments } from '../controllers/paymentController';
 import { requireAuth, requireRole } from '../middlewares/auth';
 import { uploadSalarySlip } from '../middlewares/upload';
+import { idempotency } from '../middlewares/idempotency';
 import { Role } from '../models/User';
 
 const router = Router();
@@ -23,7 +24,7 @@ router.get('/documents', getMyDocuments);
 router.post('/loans', createApplication);
 router.get('/loans', getMyApplications);
 
-router.post('/payments', recordPayment);
+router.post('/payments', idempotency('borrower.recordPayment'), recordPayment);
 router.get('/payments', getPayments);
 
 export default router;

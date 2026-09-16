@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { getCollectionLoans, getCollectionLoanDetails, recordCollectionPayment, getCollectionPayments } from '../controllers/collectionController';
 import { requireAuth, requireRole } from '../middlewares/auth';
+import { idempotency } from '../middlewares/idempotency';
 import { Role } from '../models/User';
 
 const router = Router();
@@ -11,7 +12,7 @@ router.use(requireRole([Role.ADMIN, Role.COLLECTION]));
 
 router.get('/loans', getCollectionLoans);
 router.get('/loans/:id', getCollectionLoanDetails);
-router.post('/loans/:id/payments', recordCollectionPayment);
+router.post('/loans/:id/payments', idempotency('collection.recordPayment'), recordCollectionPayment);
 router.get('/loans/:id/payments', getCollectionPayments);
 
 export default router;
