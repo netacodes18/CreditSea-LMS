@@ -4,7 +4,7 @@ import { uploadDocument, getMyDocuments } from '../controllers/documentControlle
 import { createApplication, getMyApplications } from '../controllers/loanController';
 import { recordPayment, getPayments } from '../controllers/paymentController';
 import { requireAuth, requireRole } from '../middlewares/auth';
-import { upload } from '../middlewares/upload';
+import { uploadSalarySlip } from '../middlewares/upload';
 import { Role } from '../models/User';
 
 const router = Router();
@@ -17,7 +17,7 @@ router.get('/profile', getProfile);
 router.put('/profile', upsertProfile);
 router.post('/eligibility/evaluate', evaluateEligibility);
 
-router.post('/documents', upload.single('file'), uploadDocument);
+router.post('/documents', uploadSalarySlip, uploadDocument);
 router.get('/documents', getMyDocuments);
 
 router.post('/loans', createApplication);

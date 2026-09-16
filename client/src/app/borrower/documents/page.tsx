@@ -38,6 +38,41 @@ export default function DocumentsPage() {
     }
   };
 
+  // Quick client-side check for instant feedback; the server re-verifies size and file contents
+  const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+  const SIZE_MESSAGE = 'File size must be less than or equal to 5 MB.';
+
+  const detectType = async (file: File): Promise<'pdf' | 'png' | 'jpeg' | null> => {
+    const b = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+    const starts = (sig: number[]) => b.length >= sig.length && sig.every((v, i) => b[i] === v);
+    if (starts([0x25, 0x50, 0x44, 0x46, 0x2d])) return 'pdf';
+    if (starts([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return 'png';
+    if (starts([0xff, 0xd8, 0xff])) return 'jpeg';
+    return null;
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    e.target.value = ''; // allow re-selecting the same file after fixing it
+    setError('');
+    setSuccess('');
+    setSelectedFile(null);
+    if (!file) return;
+
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setError(`${SIZE_MESSAGE} The selected file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+      return;
+    }
+    const ext = file.name.toLowerCase().split('.').pop();
+    const expected = ext === 'pdf' ? 'pdf' : ext === 'png' ? 'png' : ext === 'jpg' || ext === 'jpeg' ? 'jpeg' : null;
+    const actual = await detectType(file);
+    if (!expected || actual !== expected) {
+      setError('This file is not a genuine PDF, JPG or PNG. Renamed files (for example a PowerPoint saved as .pdf) are not accepted.');
+      return;
+    }
+    setSelectedFile(file);
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) return;
@@ -62,7 +97,12 @@ export default function DocumentsPage() {
         fetchDocuments();
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to upload document');
+      // 413 can come from a proxy in front of the API before our own size check runs
+      setError(
+        err.response?.status === 413
+          ? SIZE_MESSAGE
+          : err.response?.data?.message || 'Failed to upload document'
+      );
     } finally {
       setUploading(false);
     }
@@ -125,12 +165,12 @@ export default function DocumentsPage() {
                   <>Click to choose a file, or drag it here</>
                 )}
               </p>
-              <p className="text-xs text-[var(--ink)]/50 font-bold">PDF, PNG or JPG</p>
+              <p className="text-xs text-[var(--ink)]/50 font-bold">PDF, PNG or JPG · max 5 MB</p>
               <input
                 id="fileInput"
                 type="file"
-                accept=".pdf,.png,.jpg,.jpeg"
-                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                onChange={handleFileChange}
                 className="hidden"
                 required
               />
