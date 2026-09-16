@@ -254,6 +254,36 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
             </p>
           </div>
         )}
+
+        {loan.loanStatus === 'CLOSED' && (
+          <div className="neo-card-sm p-4 flex items-start gap-3" style={{ backgroundColor: '#e6f4ee' }}>
+            <CheckCheck className="w-5 h-5 mt-0.5 shrink-0" style={{ color: DISBURSEMENT_ACCENT }} />
+            <div className="text-sm font-bold text-[var(--ink)]">
+              Disbursed and fully repaid — this loan is now closed.
+              {loan.disbursementReference && (
+                <p className="font-medium mt-1">Reference: {loan.disbursementReference}</p>
+              )}
+              {loan.disbursedAt && (
+                <p className="font-medium mt-1">Disbursed on: {new Date(loan.disbursedAt).toLocaleDateString()}</p>
+              )}
+              {loan.closedAt && (
+                <p className="font-medium mt-1">Closed on: {new Date(loan.closedAt).toLocaleDateString()}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {loan.loanStatus === 'SANCTION_REJECTED' && (
+          <div className="neo-card-sm p-4 flex items-start gap-3" style={{ backgroundColor: 'var(--danger)' }}>
+            <XCircle className="w-5 h-5 mt-0.5 shrink-0 text-white" />
+            <div className="text-sm font-bold text-white">
+              Application rejected.
+              {loan.rejectionReason && (
+                <p className="font-medium mt-1">Reason: {loan.rejectionReason}</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Approve */}

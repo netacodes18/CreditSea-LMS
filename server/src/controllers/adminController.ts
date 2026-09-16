@@ -6,7 +6,7 @@ import { Role } from '../models/User';
 // Loan statuses each executive role may see. The data is scoped on the server, not just
 // filtered in the UI. Admin has no entry, so it sees every loan.
 const VISIBLE_STATUSES: Partial<Record<Role, LoanStatus[]>> = {
-  [Role.SANCTION]: [LoanStatus.APPLIED, LoanStatus.SANCTIONED, LoanStatus.SANCTION_REJECTED],
+  [Role.SANCTION]: [LoanStatus.APPLIED, LoanStatus.SANCTIONED, LoanStatus.SANCTION_REJECTED, LoanStatus.CLOSED],
   [Role.DISBURSEMENT]: [LoanStatus.SANCTIONED, LoanStatus.DISBURSED, LoanStatus.CLOSED],
 };
 
