@@ -12,7 +12,7 @@ const LINKS = [
   { label: 'Security', href: '#security' },
 ];
 
-export default function SiteHeader() {
+export default function SiteHeader({ hasToken }: { hasToken?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -58,7 +58,7 @@ export default function SiteHeader() {
         </div>
 
         <div className="hidden md:block flex-shrink-0">
-          <LandingNavActions />
+          <LandingNavActions hasToken={hasToken} />
         </div>
 
         <button
@@ -84,7 +84,7 @@ export default function SiteHeader() {
             </a>
           ))}
           <div className="pt-3 [&_a]:w-full [&>div]:flex-col [&>div]:items-stretch [&>div]:gap-2">
-            <LandingNavActions />
+            <LandingNavActions hasToken={hasToken} />
           </div>
         </div>
       )}

@@ -13,12 +13,14 @@ const ROLE_LANDING: Record<string, string> = {
   SALES: '/sales/dashboard',
 };
 
-export default function LandingNavActions({ variant = 'nav' }: { variant?: 'nav' | 'hero' }) {
+export default function LandingNavActions({ variant = 'nav', hasToken = true }: { variant?: 'nav' | 'hero'; hasToken?: boolean }) {
   const { user, loading } = useAuth();
+  
+  const isEffectivelyLoading = hasToken && loading;
   const dashboardHref = user ? (ROLE_LANDING[user.role] || '/borrower/dashboard') : '/login';
 
   if (variant === 'hero') {
-    if (loading) {
+    if (isEffectivelyLoading) {
       return <div className="h-12 w-52 rounded-lg bg-[var(--ink)]/5 animate-pulse" />;
     }
     if (user) {
@@ -40,7 +42,7 @@ export default function LandingNavActions({ variant = 'nav' }: { variant?: 'nav'
     );
   }
 
-  if (loading) {
+  if (isEffectivelyLoading) {
     return <div className="h-10 w-40 rounded-lg bg-[var(--ink)]/5 animate-pulse" />;
   }
 

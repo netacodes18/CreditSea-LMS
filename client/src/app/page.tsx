@@ -36,10 +36,15 @@ const SECURITY = [
   { icon: FileCheck2, title: 'Validated uploads', desc: 'Salary slips are restricted by MIME type and capped at 5 MB before they ever reach storage.' },
 ];
 
+import { cookies } from 'next/headers';
+
 export default function Home() {
+  const cookieStore = cookies();
+  const hasToken = cookieStore.has('token');
+
   return (
     <div className="bg-[var(--paper)] min-h-screen overflow-x-hidden">
-      <SiteHeader />
+      <SiteHeader hasToken={hasToken} />
 
       {/* ---------- Hero ---------- */}
       <section className="relative isolate pt-10 sm:pt-16 pb-20 sm:pb-28">
@@ -83,7 +88,7 @@ export default function Home() {
             className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-up"
             style={{ animationDelay: '0.15s' }}
           >
-            <LandingNavActions variant="hero" />
+            <LandingNavActions variant="hero" hasToken={hasToken} />
           </div>
 
           <p className="mt-6 text-xs text-[var(--ink)]/45 animate-fade-up" style={{ animationDelay: '0.2s' }}>
