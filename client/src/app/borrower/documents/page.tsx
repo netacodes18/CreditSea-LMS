@@ -172,7 +172,6 @@ export default function DocumentsPage() {
                 accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
                 onChange={handleFileChange}
                 className="hidden"
-                required
               />
             </label>
           </div>
