@@ -39,7 +39,7 @@ export const createApplication = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    // 2. Only allow one active application.
+    // 2. only one active application at a time
     const activeLoan = await LoanApplication.findOne({
       borrowerId,
       loanStatus: { $nin: [LoanStatus.SANCTION_REJECTED, LoanStatus.CLOSED] }
@@ -50,7 +50,7 @@ export const createApplication = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    // 3. Find a salary slip document to attach (required by schema)
+    // 3. attach the borrower's salary slip
     const doc = await DocumentModel.findOne({ borrowerId, state: DocumentState.CURRENT });
     if (!doc) {
       res.status(400).json({ success: false, message: 'At least one document (salary slip) must be uploaded before applying.' });

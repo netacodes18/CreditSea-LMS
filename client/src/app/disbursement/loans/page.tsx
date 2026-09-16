@@ -20,7 +20,7 @@ export default function DisbursementQueuePage() {
     try {
       const res = await api.get('/admin/loans');
       if (res.data.success) {
-        // Backend already scopes this to SANCTIONED/DISBURSED/CLOSED for the Disbursement role
+        // API already scopes this to the right statuses
         setLoans(res.data.data);
       }
     } catch (err: any) {

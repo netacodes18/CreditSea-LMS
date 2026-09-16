@@ -5,14 +5,14 @@ import { Payment } from '../models/Payment';
 import { recordLoanPayment } from '../services/paymentService';
 
 export const recordPayment = async (req: Request, res: Response): Promise<void> => {
-  // Start a Mongoose session for ACID transaction
+  // wrap payment + balance update in a transaction
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
     const { applicationId, amountPaise } = req.body;
     const borrowerId = req.user!.id;
-    // Normalize so 'utr001', 'UTR001' and ' UTR001 ' are all treated as the same UTR
+    // normalize UTR so case/whitespace don't create dupes
     const utr = typeof req.body.utr === 'string' ? req.body.utr.trim().toUpperCase() : req.body.utr;
 
     if (!applicationId) {
@@ -46,7 +46,7 @@ export const recordPayment = async (req: Request, res: Response): Promise<void> 
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-    // Handle unique UTR constraint error gracefully
+    // handle duplicate UTR
     if (error.code === 11000) {
       res.status(400).json({ success: false, message: 'This UTR has already been used for a payment.' });
     } else {
@@ -60,7 +60,7 @@ export const getPayments = async (req: Request, res: Response): Promise<void> =>
     const applicationId = req.query.applicationId as string | undefined;
     const borrowerId = req.user!.id;
 
-    // Ensure the borrower actually owns the application they are querying
+    // only return payments the borrower owns
     const query: any = {};
     if (applicationId) {
       const loan = await LoanApplication.findOne({ _id: applicationId, borrowerId });
@@ -70,7 +70,7 @@ export const getPayments = async (req: Request, res: Response): Promise<void> =>
       }
       query.applicationId = applicationId;
     } else {
-      // If no specific loan provided, find all loans owned by borrower to fetch payments for all
+      // no loanId given: fetch across all of this borrower's loans
       const loans = await LoanApplication.find({ borrowerId }).select('_id');
       const loanIds = loans.map(l => l._id);
       query.applicationId = { $in: loanIds };

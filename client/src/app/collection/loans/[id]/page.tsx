@@ -23,8 +23,7 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
   const [paymentUtr, setPaymentUtr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState('');
-  // Same key across retries of one attempt so a resend can't record the payment twice;
-  // cleared on success (next payment gets a fresh key) and on a 422 (key was tied to different data).
+  // idempotency key, reused across retries of the same attempt
   const idempotencyKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -66,14 +65,14 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
         { headers: { 'Idempotency-Key': idempotencyKeyRef.current } }
       );
       if (res.data.success) {
-        idempotencyKeyRef.current = null; // done — the next payment gets a fresh key
+        idempotencyKeyRef.current = null; // next payment gets a fresh key
         setPaymentAmount('');
         setPaymentUtr('');
         fetchData();
       }
     } catch (err: any) {
       if (err.response?.status === 422) {
-        // Key was already used for a different amount/UTR (e.g. edited after a failed attempt)
+        // key was tied to different data — start fresh
         idempotencyKeyRef.current = null;
       }
       setPaymentError(err.response?.data?.message || 'Failed to record payment');

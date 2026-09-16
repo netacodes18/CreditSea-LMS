@@ -1,5 +1,4 @@
-// Identifies a file by its leading "magic bytes" instead of trusting the filename or the
-// browser-reported MIME type, both of which come from the extension and are easy to fake.
+// identifies a file by its actual bytes, not the extension
 
 export type AllowedFileType = 'pdf' | 'png' | 'jpeg';
 

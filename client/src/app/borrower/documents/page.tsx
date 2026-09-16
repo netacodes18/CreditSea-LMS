@@ -38,7 +38,7 @@ export default function DocumentsPage() {
     }
   };
 
-  // Quick client-side check for instant feedback; the server re-verifies size and file contents
+  // instant feedback; server re-checks anyway
   const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
   const SIZE_MESSAGE = 'File size must be less than or equal to 5 MB.';
 
@@ -53,7 +53,7 @@ export default function DocumentsPage() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
-    e.target.value = ''; // allow re-selecting the same file after fixing it
+    e.target.value = ''; // allow re-picking the same file
     setError('');
     setSuccess('');
     setSelectedFile(null);
@@ -97,7 +97,7 @@ export default function DocumentsPage() {
         fetchDocuments();
       }
     } catch (err: any) {
-      // 413 can come from a proxy in front of the API before our own size check runs
+      // a proxy can send 413 before our own check runs
       setError(
         err.response?.status === 413
           ? SIZE_MESSAGE

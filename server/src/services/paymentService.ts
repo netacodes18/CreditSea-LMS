@@ -16,10 +16,7 @@ type RecordPaymentResult =
   | { ok: false; status: number; message: string }
   | { ok: true; payment: IPayment; outstandingPaise: number };
 
-// Shared by the borrower self-payment endpoint and the Collection staff endpoint: validates the
-// amount, loads the loan under the given filter/session, records the payment, deducts the
-// balance, and auto-closes + logs a StatusHistory entry when it reaches zero. Keeping this in one
-// place means a future fix to the guards or the auto-close logic only has to happen once.
+// shared by borrower self-payment and Collection payment endpoints
 export async function recordLoanPayment(args: RecordPaymentArgs): Promise<RecordPaymentResult> {
   const { loanFilter, amountPaise, utr, recordedBy, notFoundMessage, session } = args;
 

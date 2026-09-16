@@ -15,8 +15,7 @@ interface ModalProps {
 
 export default function Modal({ open, onClose, title, description, icon, children, footer }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-  // Callers pass inline handlers (a new function every render). Reading the latest one from a ref
-  // keeps the effect below tied to `open` only, so typing doesn't re-run it and steal focus.
+  // ref avoids re-running the effect on every render
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
@@ -25,7 +24,7 @@ export default function Modal({ open, onClose, title, description, icon, childre
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCloseRef.current(); };
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
-    // Once per open: focus the first text field, else the first button
+    // focus the first field on open
     const t = setTimeout(() => {
       const panel = panelRef.current;
       (panel?.querySelector<HTMLElement>('textarea, input') ?? panel?.querySelector<HTMLElement>('button'))?.focus();

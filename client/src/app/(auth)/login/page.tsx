@@ -9,7 +9,7 @@ import { Mail, Lock, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import AuthAside from '@/components/AuthAside';
 import { ROLE_LANDING } from '@/lib/roles';
 
-// Seeded accounts (server/src/seed.ts) so reviewers can test every role's access in one click
+// seeded test accounts, one per role
 const DEMO_PASSWORD = 'password123';
 const DEMO_ACCOUNTS = [
   { role: 'Admin', email: 'admin@example.com', color: 'var(--ink)' },
@@ -54,7 +54,7 @@ export default function LoginPage() {
   };
 
   const handleDemo = (demo: string) => {
-    // Fill the form so it's visible which credentials were used, then sign in
+    // fill the form so the user can see which account it is
     setEmail(demo);
     setPassword(DEMO_PASSWORD);
     setDemoEmail(demo);

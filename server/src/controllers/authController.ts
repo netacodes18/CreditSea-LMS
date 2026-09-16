@@ -92,8 +92,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const logout = (req: Request, res: Response): void => {
-  // Delete the cookie outright, with the same attributes it was set with, so the browser
-  // drops it immediately (the old 10-second "none" cookie still looked like a session to the homepage)
+  // clear the cookie so logout takes effect right away
   res.clearCookie('token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

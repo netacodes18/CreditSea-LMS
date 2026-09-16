@@ -17,8 +17,7 @@ export default function PaymentsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  // Same key across retries of one attempt so a resend can't record the payment twice;
-  // cleared on success (next payment gets a fresh key) and on a 422 (key was tied to different data).
+  // idempotency key, reused across retries of the same attempt
   const idempotencyKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function PaymentsPage() {
       ]);
 
       if (loansRes.data.success) {
-        // Only show loans that are disbursed and have outstanding balance
+        // only disbursed loans with a balance left
         const activeLoans = loansRes.data.data.filter(
           (l: any) => l.loanStatus === 'DISBURSED' && l.outstandingPaise > 0
         );
@@ -73,16 +72,15 @@ export default function PaymentsPage() {
       );
 
       if (res.data.success) {
-        idempotencyKeyRef.current = null; // done — the next payment gets a fresh key
+        idempotencyKeyRef.current = null; // next payment gets a fresh key
         setSuccess('Payment recorded successfully!');
         setAmount('');
         setUtr('');
-        fetchData(); // Refresh balances and history
+        fetchData(); // refresh balances and history
       }
     } catch (err: any) {
       if (err.response?.status === 422) {
-        // Key was already used for a different amount/UTR (e.g. the user edited the form after
-        // a failed attempt) — drop it so the next submit gets a fresh one instead of looping.
+        // key was tied to different data — start fresh
         idempotencyKeyRef.current = null;
       }
       setError(err.response?.data?.message || 'Payment failed');
@@ -162,7 +160,7 @@ export default function PaymentsPage() {
                   </p>
                   <p className="text-sm text-[var(--ink)] flex justify-between font-medium">
                     {(() => {
-                      // Loans store a total repayment and a tenure in days, not an EMI — spread the total over the tenure's months
+                      // no EMI field — spread total repayment over the tenure
                       const months = Math.max(1, Math.ceil((selectedLoan.tenureDays || 0) / 30));
                       const emi = (selectedLoan.totalRepaymentPaise || 0) / months / 100;
                       return (

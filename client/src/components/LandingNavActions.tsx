@@ -7,7 +7,7 @@ import { ROLE_LANDING } from '@/lib/roles';
 
 export default function LandingNavActions({ variant = 'nav', hasToken = true }: { variant?: 'nav' | 'hero'; hasToken?: boolean }) {
   const { user: verifiedUser, loading, cachedUser } = useAuth();
-  // While /auth/me is pending (slow on a cold Render start), show the last known user instead of a skeleton
+  // show the cached user while /auth/me loads
   const user = verifiedUser ?? (loading ? cachedUser : null);
 
   const isEffectivelyLoading = hasToken && loading && !user;

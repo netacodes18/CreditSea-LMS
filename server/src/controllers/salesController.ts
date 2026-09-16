@@ -5,7 +5,7 @@ import { User, Role } from '../models/User';
 
 export const getDashboardMetrics = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Basic aggregations for KPIs
+    // KPI aggregations
     const [
       totalBorrowers,
       loanStatusCounts,
@@ -23,13 +23,13 @@ export const getDashboardMetrics = async (req: Request, res: Response): Promise<
       LoanApplication.distinct('borrowerId')
     ]);
 
-    // Format loan status counts into an easy map
+    // status counts as a lookup map
     const statusMap = loanStatusCounts.reduce((acc, curr) => {
       acc[curr._id] = curr.count;
       return acc;
     }, {} as Record<string, number>);
 
-    // Leads = registered borrowers who have NOT applied for a loan yet (pre-application stage)
+    // leads = registered but haven't applied yet
     const leadUsers = await User.find({
       role: Role.BORROWER,
       _id: { $nin: appliedBorrowerIds }

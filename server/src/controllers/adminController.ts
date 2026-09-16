@@ -4,8 +4,7 @@ import { BorrowerProfile } from '../models/BorrowerProfile';
 import { StatusHistory } from '../models/StatusHistory';
 import { Role } from '../models/User';
 
-// Loan statuses each executive role may see. The data is scoped on the server, not just
-// filtered in the UI. Admin has no entry, so it sees every loan.
+// which statuses each role can see
 const VISIBLE_STATUSES: Partial<Record<Role, LoanStatus[]>> = {
   [Role.SANCTION]: [LoanStatus.APPLIED, LoanStatus.SANCTIONED, LoanStatus.SANCTION_REJECTED, LoanStatus.CLOSED],
   [Role.DISBURSEMENT]: [LoanStatus.SANCTIONED, LoanStatus.DISBURSED, LoanStatus.CLOSED],
@@ -71,8 +70,7 @@ export const sanctionLoan = async (req: Request, res: Response): Promise<void> =
       update.rejectionReason = reason;
     }
 
-    // Atomic: the current status is part of the filter, so two concurrent requests for the
-    // same loan can't both pass the guard and overwrite each other's result.
+    // atomic guard: blocks two concurrent sanction requests
     const loan = await LoanApplication.findOneAndUpdate(
       { _id: id, loanStatus: LoanStatus.APPLIED } as any,
       { $set: update } as any,
@@ -110,8 +108,7 @@ export const disburseLoan = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // Atomic: the current status is part of the filter, so two concurrent requests for the
-    // same loan can't both pass the guard and overwrite each other's result.
+    // atomic guard: blocks two concurrent disburse requests
     const loan = await LoanApplication.findOneAndUpdate(
       { _id: id, loanStatus: LoanStatus.SANCTIONED } as any,
       {

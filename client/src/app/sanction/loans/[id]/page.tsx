@@ -19,7 +19,7 @@ export default function AdminLoanDetail({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // dialog state: which action is being confirmed, plus its input and any error
+  // which confirm dialog is open, plus its inputs
   const [dialog, setDialog] = useState<null | 'APPROVE' | 'REJECT' | 'DISBURSE'>(null);
   const [reason, setReason] = useState('');
   const [reference, setReference] = useState('');

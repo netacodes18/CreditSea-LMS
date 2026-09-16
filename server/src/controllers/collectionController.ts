@@ -6,8 +6,7 @@ import { Payment } from '../models/Payment';
 import { Role } from '../models/User';
 import { recordLoanPayment } from '../services/paymentService';
 
-// Statuses a COLLECTION-role user may see (matches getCollectionLoans' list filter below).
-// Admin is exempt and can open any loan.
+// statuses visible to the Collection role
 const COLLECTION_VISIBLE_STATUSES = [LoanStatus.DISBURSED, LoanStatus.CLOSED];
 
 export const getCollectionLoans = async (req: Request, res: Response): Promise<void> => {
@@ -33,8 +32,7 @@ export const getCollectionLoanDetails = async (req: Request, res: Response): Pro
       return;
     }
 
-    // Scope to the same statuses the list view shows, so a loan outside this module
-    // (e.g. still APPLIED) can't be opened directly by ID.
+    // restrict Collection role to its own loans
     if (req.user!.role !== Role.ADMIN && !COLLECTION_VISIBLE_STATUSES.includes(loan.loanStatus)) {
       res.status(403).json({ success: false, message: 'Forbidden: this loan is outside your module' });
       return;
@@ -49,7 +47,7 @@ export const getCollectionLoanDetails = async (req: Request, res: Response): Pro
 };
 
 export const recordCollectionPayment = async (req: Request, res: Response): Promise<void> => {
-  // Start a Mongoose session for ACID transaction
+  // wrap payment + balance update in a transaction
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -57,7 +55,7 @@ export const recordCollectionPayment = async (req: Request, res: Response): Prom
     const { id } = req.params;
     const { amountPaise } = req.body;
     const recordedBy = (req as any).user!.id; // Collection executive
-    // Normalize so 'utr001', 'UTR001' and ' UTR001 ' are all treated as the same UTR
+    // normalize UTR so case/whitespace don't create dupes
     const utr = typeof req.body.utr === 'string' ? req.body.utr.trim().toUpperCase() : req.body.utr;
 
     const result = await recordLoanPayment({
@@ -84,7 +82,7 @@ export const recordCollectionPayment = async (req: Request, res: Response): Prom
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();
-    // Handle unique UTR constraint error gracefully
+    // handle duplicate UTR
     if (error.code === 11000) {
       res.status(400).json({ success: false, message: 'This UTR has already been used for a payment.' });
     } else {

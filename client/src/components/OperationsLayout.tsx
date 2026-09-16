@@ -24,12 +24,12 @@ export default function OperationsLayout({ children, allowedRoles }: { children:
 function OperationsLayoutInner({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
 
-  // Admin sees every module; each executive role sees only their own.
+  // admin sees every module, others see only their own
   const visibleModules = user?.role === 'ADMIN'
     ? MODULES
     : MODULES.filter((m) => m.key === user?.role);
 
-  // Cross-module Overview under each role's own URL (Admin keeps /admin/dashboard)
+  // overview link per role
   const hasOverview = user?.role === 'ADMIN' || user?.role === 'SANCTION' || user?.role === 'DISBURSEMENT';
   const overviewHref =
     user?.role === 'SANCTION' ? '/sanction/dashboard'

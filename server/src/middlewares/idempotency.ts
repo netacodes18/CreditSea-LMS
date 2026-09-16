@@ -5,9 +5,7 @@ import { IdempotencyKey, IdempotencyStatus } from '../models/IdempotencyKey';
 const HEADER = 'idempotency-key';
 const MAX_KEY_LENGTH = 128;
 
-// Recursively sorts object keys so the same logical payload always serializes identically
-// regardless of insertion order (JSON.stringify's own replacer-array form only filters keys,
-// it doesn't sort them — a plain JSON.stringify(obj, Object.keys(obj).sort()) is a no-op here).
+// sorts keys so the same payload always hashes the same way
 const stableStringify = (value: unknown): string => {
   if (Array.isArray(value)) {
     return `[${value.map(stableStringify).join(',')}]`;
@@ -80,12 +78,12 @@ export const idempotency = (endpoint: string) => {
         res.status(409).json({ success: false, message: 'A request with this Idempotency-Key is already being processed.' });
         return;
       }
-      // COMPLETED with a matching payload: replay the original result instead of reprocessing.
+      // same key + same payload: replay the cached response
       res.status(existing.responseStatus || 200).json(existing.responseBody);
       return;
     }
 
-    // Intercept the eventual response so it can be cached (or the claim dropped on a server error).
+    // cache the response once the handler sends it
     const originalJson = res.json.bind(res);
     res.json = ((body: unknown) => {
       const status = res.statusCode;

@@ -42,8 +42,7 @@ export const requireRole = (roles: Role[]) => {
       return;
     }
 
-    // Roles are explicit per route: every staff router lists ADMIN, borrower routes do not,
-    // so Admin reaches all dashboard modules but not the borrower portal API.
+    // role must be explicitly listed on the route
     if (roles.includes(req.user.role)) {
       next();
     } else {

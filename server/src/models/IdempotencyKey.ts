@@ -19,11 +19,11 @@ export interface IIdempotencyKey extends Document {
 
 const IdempotencyKeySchema: Schema = new Schema(
   {
-    // Globally unique so a create() race between two identical requests fails fast on the second one
+    // unique index catches concurrent duplicates
     key: { type: String, required: true, unique: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     endpoint: { type: String, required: true },
-    // sha256 of the request body: a reused key with a different payload is rejected, not replayed
+    // sha256 of the request body
     requestHash: { type: String, required: true },
     status: { type: String, enum: Object.values(IdempotencyStatus), required: true, default: IdempotencyStatus.PROCESSING },
     responseStatus: { type: Number },
@@ -32,8 +32,7 @@ const IdempotencyKeySchema: Schema = new Schema(
   { timestamps: true }
 );
 
-// Auto-expire records 48h after creation so retries only need to be deduped for a bounded window
-// and the collection doesn't grow forever.
+// auto-expire keys after 48h
 IdempotencyKeySchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 48 });
 
 export const IdempotencyKey = mongoose.model<IIdempotencyKey>('IdempotencyKey', IdempotencyKeySchema);

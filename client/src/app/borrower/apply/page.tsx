@@ -13,7 +13,7 @@ export default function ApplyPage() {
 
   const router = useRouter();
 
-  // Simple Interest: SI = (P x R x T) / (365 x 100), R = 12% p.a., T in days
+  // SI = (P x R x T) / (365 x 100)
   const R = 12;
   const P = amount;
   const simpleInterest = Math.round((P * R * tenureDays) / (365 * 100));

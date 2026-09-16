@@ -19,7 +19,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
       if (!user) {
         router.push('/login');
       } else if (allowedRoles && !allowedRoles.includes(user.role)) {
-        // Send them to their own portal instead of a page they can't use
+        // wrong role: send to their own dashboard
         router.push(ROLE_LANDING[user.role] || '/login');
       }
     }

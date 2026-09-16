@@ -13,7 +13,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  // Last known user, shown on public pages while /auth/me is in flight. Display only — never used for access control.
+  // last known user, for display only while /auth/me is in flight
   cachedUser: User | null;
   login: (token: string, userData: User) => void;
   logout: () => void;
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           saveUserHint({ ...response.data.data, id: response.data.data._id ?? response.data.data.id });
         }
       } catch (error: any) {
-        // 401 Unauthorized or 404 Not Found are expected if the user isn't logged in or was deleted
+        // 401/404 just means not logged in
         if (error.response?.status === 401 || error.response?.status === 404) {
           saveUserHint(null);
           setCachedUser(null);
@@ -70,14 +70,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (token: string, userData: User) => {
-    // Rely exclusively on HTTP-only cookie set by backend
+    // auth cookie is set by the server, not here
     setUser(userData);
     saveUserHint(userData);
   };
 
   const logout = async () => {
-    // Start clearing the server cookie, but update the UI immediately rather than waiting on the
-    // API (a cold Render start can take a while). An in-flight request survives client navigation.
+    // don't wait on the API — update the UI right away
     const request = api.post('/auth/logout').catch((error) => console.error('Logout error', error));
     setUser(null);
     setCachedUser(null);

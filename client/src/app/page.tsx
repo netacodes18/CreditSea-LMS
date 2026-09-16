@@ -39,7 +39,7 @@ const SECURITY = [
 import { cookies } from 'next/headers';
 
 export default async function Home() {
-  // cookies() is async in Next.js 16; lets logged-out visitors skip the auth skeleton
+  // cookies() is async in Next.js 16
   const hasToken = (await cookies()).has('token');
 
   return (

@@ -11,7 +11,7 @@ const TYPE_MESSAGE = 'Only PDF, JPG and PNG files are allowed.';
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 },
-  // First gate: extension. Content is verified after the upload is buffered.
+  // first check: extension
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
     if (TYPE_BY_EXTENSION[ext]) cb(null, true);
@@ -19,7 +19,7 @@ const upload = multer({
   },
 });
 
-// Accepts one salary slip in field "file" and rejects oversized or disguised files with a 400
+// validates size + real file type before saving
 export const uploadSalarySlip = (req: Request, res: Response, next: NextFunction): void => {
   upload.single('file')(req, res, (err: unknown) => {
     if (err instanceof multer.MulterError) {
@@ -42,8 +42,7 @@ export const uploadSalarySlip = (req: Request, res: Response, next: NextFunction
       return;
     }
 
-    // Second gate: the bytes must really be a PDF/PNG/JPEG, and match the extension.
-    // A .pptx or .docx renamed to .pdf starts with "PK", not "%PDF-", so it is rejected here.
+    // check actual file bytes, not just the extension
     const detected = detectFileType(file.buffer);
     const expected = TYPE_BY_EXTENSION[path.extname(file.originalname).toLowerCase()];
     if (!detected || detected !== expected) {
