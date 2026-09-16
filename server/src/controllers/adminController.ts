@@ -7,7 +7,7 @@ import { Role } from '../models/User';
 // filtered in the UI. Admin has no entry, so it sees every loan.
 const VISIBLE_STATUSES: Partial<Record<Role, LoanStatus[]>> = {
   [Role.SANCTION]: [LoanStatus.APPLIED, LoanStatus.SANCTIONED, LoanStatus.SANCTION_REJECTED],
-  [Role.DISBURSEMENT]: [LoanStatus.SANCTIONED, LoanStatus.DISBURSED],
+  [Role.DISBURSEMENT]: [LoanStatus.SANCTIONED, LoanStatus.DISBURSED, LoanStatus.CLOSED],
 };
 
 export const getAllLoans = async (req: Request, res: Response): Promise<void> => {

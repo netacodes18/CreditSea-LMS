@@ -20,11 +20,8 @@ export default function DisbursementQueuePage() {
     try {
       const res = await api.get('/admin/loans');
       if (res.data.success) {
-        // Only show loans that are ready for disbursement (SANCTIONED) or already DISBURSED recently
-        const relevantLoans = res.data.data.filter((l: any) =>
-          ['SANCTIONED', 'DISBURSED'].includes(l.loanStatus)
-        );
-        setLoans(relevantLoans);
+        // Backend already scopes this to SANCTIONED/DISBURSED/CLOSED for the Disbursement role
+        setLoans(res.data.data);
       }
     } catch (err: any) {
       console.error(err);
