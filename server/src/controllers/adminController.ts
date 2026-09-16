@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { LoanApplication, LoanStatus } from '../models/LoanApplication';
 import { BorrowerProfile } from '../models/BorrowerProfile';
+import { StatusHistory } from '../models/StatusHistory';
 import { Role } from '../models/User';
 
 // Loan statuses each executive role may see. The data is scoped on the server, not just
@@ -54,27 +55,43 @@ export const sanctionLoan = async (req: Request, res: Response): Promise<void> =
     const { id } = req.params;
     const { action, reason } = req.body; // action: 'APPROVE' or 'REJECT'
 
-    const loan = await LoanApplication.findById(id);
-    if (!loan) {
+    const existing = await LoanApplication.findById(id);
+    if (!existing) {
       res.status(404).json({ success: false, message: 'Loan not found' });
       return;
     }
 
-    if (loan.loanStatus !== LoanStatus.APPLIED) {
-      res.status(400).json({ success: false, message: `Cannot sanction loan in status: ${loan.loanStatus}` });
+    const nextStatus = action === 'REJECT' ? LoanStatus.SANCTION_REJECTED : LoanStatus.SANCTIONED;
+    const update: Record<string, any> = {
+      loanStatus: nextStatus,
+      sanctionedBy: req.user!.id,
+      sanctionedAt: new Date(),
+    };
+    if (action === 'REJECT') {
+      update.rejectionReason = reason;
+    }
+
+    // Atomic: the current status is part of the filter, so two concurrent requests for the
+    // same loan can't both pass the guard and overwrite each other's result.
+    const loan = await LoanApplication.findOneAndUpdate(
+      { _id: id, loanStatus: LoanStatus.APPLIED } as any,
+      { $set: update } as any,
+      { new: true }
+    );
+
+    if (!loan) {
+      res.status(400).json({ success: false, message: `Cannot sanction loan in status: ${existing.loanStatus}` });
       return;
     }
 
-    if (action === 'REJECT') {
-      loan.loanStatus = LoanStatus.SANCTION_REJECTED;
-      loan.rejectionReason = reason;
-    } else {
-      loan.loanStatus = LoanStatus.SANCTIONED;
-    }
-
-    loan.sanctionedBy = req.user!.id as any;
-    loan.sanctionedAt = new Date();
-    await loan.save();
+    await StatusHistory.create({
+      applicationId: loan._id,
+      fromStatus: LoanStatus.APPLIED,
+      toStatus: nextStatus,
+      action: action === 'REJECT' ? 'REJECT' : 'APPROVE',
+      actorId: req.user!.id,
+      reason: action === 'REJECT' ? reason : undefined,
+    });
 
     res.status(200).json({ success: true, data: loan });
   } catch (error: any) {
@@ -87,24 +104,41 @@ export const disburseLoan = async (req: Request, res: Response): Promise<void> =
     const { id } = req.params;
     const { reference } = req.body;
 
-    const loan = await LoanApplication.findById(id);
-    if (!loan) {
+    const existing = await LoanApplication.findById(id);
+    if (!existing) {
       res.status(404).json({ success: false, message: 'Loan not found' });
       return;
     }
 
-    if (loan.loanStatus !== LoanStatus.SANCTIONED) {
-      res.status(400).json({ success: false, message: `Cannot disburse loan in status: ${loan.loanStatus}` });
+    // Atomic: the current status is part of the filter, so two concurrent requests for the
+    // same loan can't both pass the guard and overwrite each other's result.
+    const loan = await LoanApplication.findOneAndUpdate(
+      { _id: id, loanStatus: LoanStatus.SANCTIONED } as any,
+      {
+        $set: {
+          loanStatus: LoanStatus.DISBURSED,
+          disbursedBy: req.user!.id,
+          disbursedAt: new Date(),
+          disbursementReference: reference,
+          disbursedAmountPaise: existing.loanAmountPaise,
+        },
+      } as any,
+      { new: true }
+    );
+
+    if (!loan) {
+      res.status(400).json({ success: false, message: `Cannot disburse loan in status: ${existing.loanStatus}` });
       return;
     }
 
-    loan.loanStatus = LoanStatus.DISBURSED;
-    loan.disbursedBy = req.user!.id as any;
-    loan.disbursedAt = new Date();
-    loan.disbursementReference = reference;
-    loan.disbursedAmountPaise = loan.loanAmountPaise;
-
-    await loan.save();
+    await StatusHistory.create({
+      applicationId: loan._id,
+      fromStatus: LoanStatus.SANCTIONED,
+      toStatus: LoanStatus.DISBURSED,
+      action: 'DISBURSE',
+      actorId: req.user!.id,
+      reason: reference,
+    });
 
     res.status(200).json({ success: true, data: loan });
   } catch (error: any) {
