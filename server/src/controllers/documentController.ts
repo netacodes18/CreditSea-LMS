@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { DocumentModel, DocumentState } from '../models/Document';
+import { uploadToCloudinary } from '../config/cloudinary';
 import path from 'path';
 
 export const uploadDocument = async (req: Request, res: Response): Promise<void> => {
@@ -11,14 +12,17 @@ export const uploadDocument = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const fileUrl = `/uploads/${file.filename}`;
+    const folder = `lms/documents/${req.user!.id}`;
+    
+    // Upload to Cloudinary
+    const result = await uploadToCloudinary(file.buffer, folder);
 
     const doc = await DocumentModel.create({
       borrowerId: req.user!.id,
       originalName: file.originalname,
       mimeType: file.mimetype,
       sizeBytes: file.size,
-      storageKey: fileUrl,
+      storageKey: result.secure_url, // Save the secure URL from Cloudinary
       state: DocumentState.CURRENT,
     });
 
