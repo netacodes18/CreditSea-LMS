@@ -2,6 +2,10 @@
 
 A rigorous, full-stack, vertically integrated Loan Management System engineered with strict Role-Based Access Control (RBAC), ACID-compliant financial ledgers, Business Rule Engine (BRE) guards, and instantaneous CRM analytics.
 
+## Live Links
+* **Frontend Web App**: [https://credit-sea-lms-eight.vercel.app](https://credit-sea-lms-eight.vercel.app/)
+* **Backend API**: [https://creditsea-lms-502u.onrender.com](https://creditsea-lms-502u.onrender.com/)
+
 ## Tech Stack
 *   **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS, Axios.
 *   **Backend**: Node.js, Express, TypeScript, Multer, JWT (HTTP-Only Cookies).
@@ -44,7 +48,7 @@ Instantly distills thousands of active system logs via MongoDB's `$aggregate` pi
 ```bash
 cd server
 npm install
-cp .env.example .env   # then fill in MONGO_URI / JWT_SECRET
+cp .env.example .env   # fill in MONGO_URI, JWT_SECRET, and Cloudinary Keys
 npm run seed            # creates one account per role (see Test Credentials below)
 npm run dev
 ```
@@ -75,13 +79,22 @@ The browser never calls the Express server directly. `client/next.config.ts` pro
 | Build Command | `npm install --include=dev && npm run build` |
 | Start Command | `npm run start:prod` |
 
-Environment variables: `NODE_ENV=production`, `MONGO_URI=<atlas uri>`, `JWT_SECRET=<long random string>`, `CLIENT_URL=https://<your-app>.vercel.app`. Render provides `PORT`. Check `https://<service>.onrender.com/api/health`.
+Environment variables: 
+* `NODE_ENV=production`
+* `MONGO_URI=<atlas uri>`
+* `JWT_SECRET=<long random string>`
+* `CLIENT_URL=https://credit-sea-lms-eight.vercel.app` 
+* `CLOUDINARY_CLOUD_NAME=<your_cloud_name>`
+* `CLOUDINARY_API_KEY=<your_api_key>`
+* `CLOUDINARY_API_SECRET=<your_api_secret>`
 
-**3. Frontend on Vercel** — New Project → this repo → Root Directory `client` (Next.js is auto-detected). Environment variable: `API_ORIGIN=https://<service>.onrender.com`. Deploy, then put the Vercel URL into Render's `CLIENT_URL`.
+Check `https://creditsea-lms-502u.onrender.com/api/health`.
+
+**3. Frontend on Vercel** — New Project → this repo → Root Directory `client` (Next.js is auto-detected). Environment variable: `API_ORIGIN=https://creditsea-lms-502u.onrender.com`. Deploy, then ensure the Vercel URL is set in Render's `CLIENT_URL`.
 
 **4. Seed (optional, wipes data)** — locally, with `MONGO_URI` in `server/.env` pointing at Atlas: `cd server && npm run seed`.
 
-> Render's free tier sleeps after inactivity (first request takes ~30–50 s) and its filesystem is ephemeral, so uploaded salary slips are lost on redeploy or restart. For durable files, attach a Render persistent disk or move uploads to object storage.
+> **Storage Note:** Render's free tier filesystem is ephemeral, so uploaded salary slips are seamlessly streamed to **Cloudinary** for persistent, secure storage using `resource_type: auto` for PDFs and Images.
 
 ---
 
