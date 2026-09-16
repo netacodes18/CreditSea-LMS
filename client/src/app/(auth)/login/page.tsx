@@ -78,7 +78,7 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-[var(--ink)]/60 font-medium">
             Or{' '}
             <Link href="/register" className="font-bold text-[var(--ink)] underline decoration-2 decoration-[#f97316] underline-offset-4">
-              register a new borrower account
+              register a new account
             </Link>
           </p>
 
