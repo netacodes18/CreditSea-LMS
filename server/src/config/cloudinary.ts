@@ -24,24 +24,38 @@ export const uploadToCloudinary = (buffer: Buffer, folder: string): Promise<any>
 };
 
 export const getSignedUrl = (publicIdOrUrl: string): string => {
+  // If the file was uploaded publicly (legacy), it does not need a private signature
+  if (publicIdOrUrl.includes('/upload/')) {
+    return publicIdOrUrl;
+  }
+
   let publicId = publicIdOrUrl;
   let format = '';
+  let resourceType = 'image';
+
   // If it's a URL, attempt to extract the public_id
   if (publicIdOrUrl.startsWith('http')) {
     const parts = publicIdOrUrl.split('/');
-    const uploadIndex = parts.findIndex(p => p === 'upload');
-    if (uploadIndex !== -1) {
-      // Remove version (e.g. v123456789) and take the rest
-      const relevantParts = parts.slice(uploadIndex + 1);
+    const privateIndex = parts.findIndex(p => p === 'private');
+    if (privateIndex !== -1) {
+      resourceType = parts[privateIndex - 1] || 'image';
+      
+      const relevantParts = parts.slice(privateIndex + 1);
+      // Remove signature if present (e.g. s--1PBuED_n--)
+      if (relevantParts[0]?.startsWith('s--')) {
+        relevantParts.shift();
+      }
+      // Remove version if present (e.g. v1789604692)
       if (relevantParts[0]?.match(/^v\d+$/)) {
         relevantParts.shift();
       }
+      
       const fullPath = relevantParts.join('/');
       const extMatch = fullPath.match(/\.([^/.]+)$/);
       if (extMatch && extMatch[1]) {
         format = extMatch[1];
       }
-      // Remove extension
+      // Remove extension for publicId
       publicId = fullPath.replace(/\.[^/.]+$/, "");
     }
   }
@@ -49,6 +63,6 @@ export const getSignedUrl = (publicIdOrUrl: string): string => {
   return cloudinary.utils.private_download_url(
     publicId,
     format,
-    { expires_at: Math.floor(Date.now() / 1000) + 60 * 15 } // 15 mins
+    { expires_at: Math.floor(Date.now() / 1000) + 60 * 15, resource_type: resourceType } // 15 mins
   );
 };
