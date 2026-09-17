@@ -25,6 +25,7 @@ export const uploadToCloudinary = (buffer: Buffer, folder: string): Promise<any>
 
 export const getSignedUrl = (publicIdOrUrl: string): string => {
   let publicId = publicIdOrUrl;
+  let format = '';
   // If it's a URL, attempt to extract the public_id
   if (publicIdOrUrl.startsWith('http')) {
     const parts = publicIdOrUrl.split('/');
@@ -35,14 +36,19 @@ export const getSignedUrl = (publicIdOrUrl: string): string => {
       if (relevantParts[0]?.match(/^v\d+$/)) {
         relevantParts.shift();
       }
+      const fullPath = relevantParts.join('/');
+      const extMatch = fullPath.match(/\.([^/.]+)$/);
+      if (extMatch && extMatch[1]) {
+        format = extMatch[1];
+      }
       // Remove extension
-      publicId = relevantParts.join('/').replace(/\.[^/.]+$/, "");
+      publicId = fullPath.replace(/\.[^/.]+$/, "");
     }
   }
 
   return cloudinary.utils.private_download_url(
     publicId,
-    'auto',
+    format,
     { expires_at: Math.floor(Date.now() / 1000) + 60 * 15 } // 15 mins
   );
 };
