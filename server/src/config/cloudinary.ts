@@ -32,7 +32,7 @@ export const getSignedUrl = (publicIdOrUrl: string): string => {
     if (uploadIndex !== -1) {
       // Remove version (e.g. v123456789) and take the rest
       const relevantParts = parts.slice(uploadIndex + 1);
-      if (relevantParts[0].match(/^v\d+$/)) {
+      if (relevantParts[0]?.match(/^v\d+$/)) {
         relevantParts.shift();
       }
       // Remove extension
