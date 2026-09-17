@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { LoanApplication, LoanStatus } from '../models/LoanApplication';
 import { BorrowerProfile, EligibilityStatus } from '../models/BorrowerProfile';
 import { DocumentModel, DocumentState } from '../models/Document';
+import { StatusHistory } from '../models/StatusHistory';
+import { computeSimpleInterestPaise, computeOverdueInfo } from '../utils/loanMath';
 
 const MIN_LOAN_AMOUNT_PAISE = 50_000 * 100;
 const MAX_LOAN_AMOUNT_PAISE = 500_000 * 100;
@@ -57,10 +59,9 @@ export const createApplication = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    // Simple Interest: SI = (P x R x T) / (365 x 100), T in days
     const P = amountPaise;
     const rateBps = 1200; // 12%
-    const simpleInterestPaise = Math.round(P * (rateBps / 10000) * (tenureDays / 365));
+    const simpleInterestPaise = computeSimpleInterestPaise(P, rateBps, tenureDays);
     const totalRepaymentPaise = P + simpleInterestPaise;
 
     const application = await LoanApplication.create({
@@ -77,6 +78,10 @@ export const createApplication = async (req: Request, res: Response): Promise<vo
 
     res.status(201).json({ success: true, data: application });
   } catch (error: any) {
+    if (error.code === 11000) {
+      res.status(400).json({ success: false, message: 'You already have an active loan application.' });
+      return;
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -84,7 +89,27 @@ export const createApplication = async (req: Request, res: Response): Promise<vo
 export const getMyApplications = async (req: Request, res: Response): Promise<void> => {
   try {
     const applications = await LoanApplication.find({ borrowerId: req.user!.id }).sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: applications });
+    const data = applications.map((loan) => ({
+      ...loan.toObject(),
+      overdue: computeOverdueInfo(loan.loanStatus, loan.disbursedAt, loan.tenureDays, loan.outstandingPaise),
+    }));
+    res.status(200).json({ success: true, data });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getMyLoanHistory = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const loan = await LoanApplication.findOne({ _id: id, borrowerId: req.user!.id } as any);
+    if (!loan) {
+      res.status(404).json({ success: false, message: 'Loan not found' });
+      return;
+    }
+
+    const history = await StatusHistory.find({ applicationId: id } as any).sort({ createdAt: 1 });
+    res.status(200).json({ success: true, data: history });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

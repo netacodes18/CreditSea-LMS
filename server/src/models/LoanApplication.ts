@@ -59,4 +59,16 @@ const LoanApplicationSchema: Schema = new Schema(
   { timestamps: true }
 );
 
+// Partial unique index: A borrower can only have ONE loan that is not REJECTED or CLOSED.
+LoanApplicationSchema.index(
+  { borrowerId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      loanStatus: { $in: [LoanStatus.APPLIED, LoanStatus.SANCTIONED, LoanStatus.DISBURSED] }
+    }
+  }
+);
+
 export const LoanApplication = mongoose.model<ILoanApplication>('LoanApplication', LoanApplicationSchema);
+

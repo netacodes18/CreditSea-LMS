@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
+import OverdueBadge from '@/components/OverdueBadge';
+import ActivityTimeline from '@/components/ActivityTimeline';
 import { ArrowLeft, Loader2, CheckCheck, Banknote } from 'lucide-react';
 
 const ACCENT = '#059669';
@@ -14,6 +16,7 @@ export default function DisbursementLoanDetail({ params }: { params: Promise<{ i
   const { id } = use(params);
 
   const [data, setData] = useState<any>(null);
+  const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [reference, setReference] = useState('');
@@ -25,10 +28,12 @@ export default function DisbursementLoanDetail({ params }: { params: Promise<{ i
 
   const fetchLoan = async () => {
     try {
-      const res = await api.get(`/admin/loans/${id}`);
-      if (res.data.success) {
-        setData(res.data.data);
-      }
+      const [loanRes, historyRes] = await Promise.all([
+        api.get(`/admin/loans/${id}`),
+        api.get(`/admin/loans/${id}/history`)
+      ]);
+      if (loanRes.data.success) setData(loanRes.data.data);
+      if (historyRes.data.success) setHistory(historyRes.data.data);
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -73,7 +78,7 @@ export default function DisbursementLoanDetail({ params }: { params: Promise<{ i
     );
   }
 
-  const { loan, profile } = data;
+  const { loan, profile, overdue } = data;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -83,7 +88,10 @@ export default function DisbursementLoanDetail({ params }: { params: Promise<{ i
 
       <div className="flex justify-between items-center flex-wrap gap-3">
         <h1 className="text-2xl font-bold text-[var(--ink)] tracking-tight">Loan {loan._id.slice(-6).toUpperCase()}</h1>
-        <StatusBadge status={loan.loanStatus} />
+        <div className="flex items-center gap-2">
+          <OverdueBadge overdue={overdue} />
+          <StatusBadge status={loan.loanStatus} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -191,6 +199,12 @@ export default function DisbursementLoanDetail({ params }: { params: Promise<{ i
             This loan is not in a sanctioned state. Current state: {loan.loanStatus}
           </div>
         )}
+      </div>
+
+      {/* Activity */}
+      <div className="neo-card p-6">
+        <h2 className="text-lg font-bold text-[var(--ink)] mb-4">Activity</h2>
+        <ActivityTimeline history={history} />
       </div>
     </div>
   );

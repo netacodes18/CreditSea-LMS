@@ -6,6 +6,8 @@ import api from '@/lib/api';
 import { createIdempotencyKey } from '@/lib/idempotency';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
+import OverdueBadge from '@/components/OverdueBadge';
+import ActivityTimeline from '@/components/ActivityTimeline';
 import { ArrowLeft, Loader2, CheckCircle2, ReceiptText } from 'lucide-react';
 
 const ACCENT = '#0891b2';
@@ -16,6 +18,7 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
 
   const [data, setData] = useState<any>(null);
   const [payments, setPayments] = useState<any[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Payment Form State
@@ -32,13 +35,15 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
 
   const fetchData = async () => {
     try {
-      const [loanRes, paymentsRes] = await Promise.all([
+      const [loanRes, paymentsRes, historyRes] = await Promise.all([
         api.get(`/collection/loans/${id}`),
-        api.get(`/collection/loans/${id}/payments`)
+        api.get(`/collection/loans/${id}/payments`),
+        api.get(`/collection/loans/${id}/history`)
       ]);
 
       if (loanRes.data.success) setData(loanRes.data.data);
       if (paymentsRes.data.success) setPayments(paymentsRes.data.data);
+      if (historyRes.data.success) setHistory(historyRes.data.data);
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -99,7 +104,7 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
     );
   }
 
-  const { loan, profile } = data;
+  const { loan, profile, overdue } = data;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -109,7 +114,10 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
 
       <div className="flex justify-between items-center flex-wrap gap-3">
         <h1 className="text-2xl font-bold text-[var(--ink)] tracking-tight">Loan {loan._id.slice(-6).toUpperCase()}</h1>
-        <StatusBadge status={loan.loanStatus} />
+        <div className="flex items-center gap-2">
+          <OverdueBadge overdue={overdue} />
+          <StatusBadge status={loan.loanStatus} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -153,6 +161,19 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
               <p className="mt-1 text-xl font-bold text-white">₹{(loan.outstandingPaise / 100).toLocaleString()}</p>
             </div>
           </div>
+          {overdue?.isOverdue && (
+            <div className="mt-4 neo-card-sm p-4 flex items-center justify-between flex-wrap gap-2" style={{ backgroundColor: '#fef2f2', border: '1px solid #fca5a5' }}>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide" style={{ color: '#b91c1c' }}>
+                  {overdue.daysOverdue} {overdue.daysOverdue === 1 ? 'day' : 'days'} past due date
+                </p>
+                <p className="text-[11px] text-[var(--ink)]/60 font-medium mt-0.5">
+                  Due {new Date(overdue.dueDate).toLocaleDateString()} · penalty interest at 2% p.a. on the outstanding balance
+                </p>
+              </div>
+              <p className="text-lg font-bold" style={{ color: '#b91c1c' }}>+₹{(overdue.penaltyInterestPaise / 100).toLocaleString()}</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -267,6 +288,12 @@ export default function CollectionLoanDetail({ params }: { params: Promise<{ id:
             </div>
           )}
         </div>
+      </div>
+
+      {/* Activity */}
+      <div className="neo-card p-6">
+        <h2 className="text-lg font-bold text-[var(--ink)] mb-4">Activity</h2>
+        <ActivityTimeline history={history} />
       </div>
     </div>
   );

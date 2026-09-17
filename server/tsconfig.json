@@ -1,6 +1,7 @@
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "include": ["src/**/*.ts"],
+  "exclude": ["src/**/__tests__/**", "node_modules", "dist"],
   "ts-node": {
     "files": true
   },

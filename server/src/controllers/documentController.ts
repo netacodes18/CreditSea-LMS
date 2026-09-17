@@ -40,3 +40,29 @@ export const getMyDocuments = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getDocumentDownloadUrl = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const document = await DocumentModel.findById(id);
+
+    if (!document) {
+      res.status(404).json({ success: false, message: 'Document not found' });
+      return;
+    }
+
+    // Role check: If not admin/sanction/etc, it must belong to the user
+    if (req.user!.role === 'BORROWER' && String(document.borrowerId) !== req.user!.id) {
+      res.status(403).json({ success: false, message: 'Forbidden' });
+      return;
+    }
+
+    const { getSignedUrl } = require('../config/cloudinary');
+    const signedUrl = getSignedUrl(document.storageKey);
+
+    // Redirect to the signed URL
+    res.redirect(signedUrl);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

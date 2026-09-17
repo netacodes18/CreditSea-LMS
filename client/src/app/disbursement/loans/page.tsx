@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
+import OverdueBadge from '@/components/OverdueBadge';
 import { Banknote, ArrowRight, Loader2 } from 'lucide-react';
 
 const ACCENT = '#059669';
@@ -81,7 +82,10 @@ export default function DisbursementQueuePage() {
                       ₹{(loan.loanAmountPaise / 100).toLocaleString()}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <StatusBadge status={loan.loanStatus} />
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={loan.loanStatus} />
+                        <OverdueBadge overdue={loan.overdue} />
+                      </div>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
                       <Link href={`/disbursement/loans/${loan._id}`} className="inline-flex items-center gap-1 font-bold hover:gap-1.5 transition-all text-[var(--ink)]">

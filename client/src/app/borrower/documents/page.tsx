@@ -208,7 +208,7 @@ export default function DocumentsPage() {
                   </div>
                 </div>
                 <a
-                  href={fileUrl(doc.storageKey)}
+                  href={fileUrl(`/api/borrower/documents/${doc._id}/download`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[var(--ink)] hover:underline text-sm font-bold inline-flex items-center gap-1 shrink-0"

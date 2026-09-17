@@ -44,7 +44,7 @@ export const idempotency = (endpoint: string) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const rawKey = req.header(HEADER);
     if (!rawKey) {
-      next();
+      res.status(400).json({ success: false, message: `Missing ${HEADER} header. This endpoint requires idempotency.` });
       return;
     }
 

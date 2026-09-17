@@ -3,6 +3,7 @@ import { LoanApplication, LoanStatus } from '../models/LoanApplication';
 import { BorrowerProfile } from '../models/BorrowerProfile';
 import { StatusHistory } from '../models/StatusHistory';
 import { Role } from '../models/User';
+import { computeOverdueInfo } from '../utils/loanMath';
 
 // which statuses each role can see
 const VISIBLE_STATUSES: Partial<Record<Role, LoanStatus[]>> = {
@@ -12,12 +13,37 @@ const VISIBLE_STATUSES: Partial<Record<Role, LoanStatus[]>> = {
 
 export const getAllLoans = async (req: Request, res: Response): Promise<void> => {
   try {
-    const visible = VISIBLE_STATUSES[req.user!.role];
-    const loans = await LoanApplication.find(visible ? { loanStatus: { $in: visible } } : {})
-      .populate('borrowerId', 'name email')
-      .sort({ createdAt: -1 });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const skip = (page - 1) * limit;
 
-    res.status(200).json({ success: true, data: loans });
+    const visible = VISIBLE_STATUSES[req.user!.role];
+    const query = visible ? { loanStatus: { $in: visible } } : {};
+
+    const [loans, total] = await Promise.all([
+      LoanApplication.find(query)
+        .populate('borrowerId', 'name email')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      LoanApplication.countDocuments(query)
+    ]);
+
+    const data = loans.map((loan) => ({
+      ...loan.toObject(),
+      overdue: computeOverdueInfo(loan.loanStatus, loan.disbursedAt, loan.tenureDays, loan.outstandingPaise),
+    }));
+
+    res.status(200).json({ 
+      success: true, 
+      data,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -42,8 +68,34 @@ export const getLoanDetails = async (req: Request, res: Response): Promise<void>
     }
 
     const profile = await BorrowerProfile.findOne({ userId: loan.borrowerId._id });
+    const overdue = computeOverdueInfo(loan.loanStatus, loan.disbursedAt, loan.tenureDays, loan.outstandingPaise);
 
-    res.status(200).json({ success: true, data: { loan, profile } });
+    res.status(200).json({ success: true, data: { loan, profile, overdue } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getLoanHistory = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const loan = await LoanApplication.findById(id);
+    if (!loan) {
+      res.status(404).json({ success: false, message: 'Loan not found' });
+      return;
+    }
+
+    const visible = VISIBLE_STATUSES[req.user!.role];
+    if (visible && !visible.includes(loan.loanStatus)) {
+      res.status(403).json({ success: false, message: 'Forbidden: this loan is outside your module' });
+      return;
+    }
+
+    const history = await StatusHistory.find({ applicationId: id } as any)
+      .populate('actorId', 'email role')
+      .sort({ createdAt: 1 });
+
+    res.status(200).json({ success: true, data: history });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

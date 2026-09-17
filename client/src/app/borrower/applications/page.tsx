@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import api from '@/lib/api';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
-import { AlertCircle, FileStack, Plus, Loader2 } from 'lucide-react';
+import OverdueBadge from '@/components/OverdueBadge';
+import ActivityTimeline from '@/components/ActivityTimeline';
+import { AlertCircle, FileStack, Plus, Loader2, History, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface LoanApplication {
   _id: string;
@@ -14,12 +16,17 @@ interface LoanApplication {
   totalRepaymentPaise: number;
   loanStatus: string;
   createdAt: string;
+  overdue?: { isOverdue: boolean; daysOverdue: number; penaltyInterestPaise: number };
 }
 
 export default function ApplicationsPage() {
   const [applications, setApplications] = useState<LoanApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [history, setHistory] = useState<Record<string, any[]>>({});
+  const [historyLoading, setHistoryLoading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchApplications();
@@ -35,6 +42,27 @@ export default function ApplicationsPage() {
       setError('Failed to fetch applications');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleHistory = async (id: string) => {
+    if (expandedId === id) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(id);
+    if (!history[id]) {
+      setHistoryLoading(id);
+      try {
+        const res = await api.get(`/borrower/loans/${id}/history`);
+        if (res.data.success) {
+          setHistory((h) => ({ ...h, [id]: res.data.data }));
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setHistoryLoading(null);
+      }
     }
   };
 
@@ -89,30 +117,59 @@ export default function ApplicationsPage() {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-[var(--ink)]/60 uppercase tracking-wider">Tenure</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-[var(--ink)]/60 uppercase tracking-wider">Total Repayment</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-[var(--ink)]/60 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-bold text-[var(--ink)]/60 uppercase tracking-wider"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--line)]">
                 {applications.map((app) => (
-                  <tr key={app._id} className="hover:bg-[var(--paper)] transition-colors">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/70 font-mono font-bold">
-                      {app._id.slice(-6).toUpperCase()}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/60 font-medium">
-                      {new Date(app.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)] font-bold">
-                      ₹{((app.loanAmountPaise || 0) / 100).toLocaleString()}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/60 font-medium">
-                      {app.tenureDays} days
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/60 font-medium">
-                      ₹{((app.totalRepaymentPaise || 0) / 100).toLocaleString()}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <StatusBadge status={app.loanStatus} />
-                    </td>
-                  </tr>
+                  <Fragment key={app._id}>
+                    <tr className="hover:bg-[var(--paper)] transition-colors">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/70 font-mono font-bold">
+                        {app._id.slice(-6).toUpperCase()}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/60 font-medium">
+                        {new Date(app.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)] font-bold">
+                        ₹{((app.loanAmountPaise || 0) / 100).toLocaleString()}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/60 font-medium">
+                        {app.tenureDays} days
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-[var(--ink)]/60 font-medium">
+                        ₹{((app.totalRepaymentPaise || 0) / 100).toLocaleString()}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={app.loanStatus} />
+                          <OverdueBadge overdue={app.overdue} />
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm">
+                        <button
+                          onClick={() => toggleHistory(app._id)}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-[var(--ink)]/60 hover:text-[var(--ink)] transition-colors"
+                        >
+                          <History className="w-3.5 h-3.5" />
+                          History
+                          {expandedId === app._id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+                      </td>
+                    </tr>
+                    {expandedId === app._id && (
+                      <tr>
+                        <td colSpan={7} className="px-6 py-5 bg-[var(--paper)]">
+                          {historyLoading === app._id ? (
+                            <div className="flex items-center gap-2 text-sm text-[var(--ink)]/50 font-bold">
+                              <Loader2 className="w-4 h-4 animate-spin" /> Loading activity…
+                            </div>
+                          ) : (
+                            <ActivityTimeline history={history[app._id] || []} />
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

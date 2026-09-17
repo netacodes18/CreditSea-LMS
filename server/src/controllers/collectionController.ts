@@ -3,19 +3,51 @@ import mongoose from 'mongoose';
 import { LoanApplication, LoanStatus } from '../models/LoanApplication';
 import { BorrowerProfile } from '../models/BorrowerProfile';
 import { Payment } from '../models/Payment';
+import { StatusHistory } from '../models/StatusHistory';
 import { Role } from '../models/User';
 import { recordLoanPayment } from '../services/paymentService';
+import { computeOverdueInfo } from '../utils/loanMath';
 
 // statuses visible to the Collection role
 const COLLECTION_VISIBLE_STATUSES = [LoanStatus.DISBURSED, LoanStatus.CLOSED];
 
 export const getCollectionLoans = async (req: Request, res: Response): Promise<void> => {
   try {
-    const loans = await LoanApplication.find({ loanStatus: { $in: [LoanStatus.DISBURSED, LoanStatus.CLOSED] } })
-      .populate('borrowerId', 'name email')
-      .sort({ disbursedAt: -1, createdAt: -1 });
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const maxLimit = 100;
+    const safeLimit = Math.min(limit > 0 ? limit : 50, maxLimit);
+    const safePage = page > 0 ? page : 1;
+    const skip = (safePage - 1) * safeLimit;
 
-    res.status(200).json({ success: true, data: loans });
+    const query = { loanStatus: { $in: [LoanStatus.DISBURSED, LoanStatus.CLOSED] } };
+
+    const [loans, total] = await Promise.all([
+      LoanApplication.find(query)
+        .populate('borrowerId', 'name email')
+        .sort({ disbursedAt: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(safeLimit),
+      LoanApplication.countDocuments(query)
+    ]);
+
+    const data = loans.map((loan) => ({
+      ...loan.toObject(),
+      overdue: computeOverdueInfo(loan.loanStatus, loan.disbursedAt, loan.tenureDays, loan.outstandingPaise),
+    }));
+
+    res.status(200).json({ 
+      success: true, 
+      data,
+      pagination: {
+        total,
+        page: safePage,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit),
+        hasNextPage: safePage * safeLimit < total,
+        hasPreviousPage: safePage > 1
+      }
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -39,8 +71,33 @@ export const getCollectionLoanDetails = async (req: Request, res: Response): Pro
     }
 
     const profile = await BorrowerProfile.findOne({ userId: loan.borrowerId._id });
+    const overdue = computeOverdueInfo(loan.loanStatus, loan.disbursedAt, loan.tenureDays, loan.outstandingPaise);
 
-    res.status(200).json({ success: true, data: { loan, profile } });
+    res.status(200).json({ success: true, data: { loan, profile, overdue } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getCollectionLoanHistory = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const loan = await LoanApplication.findById(id);
+    if (!loan) {
+      res.status(404).json({ success: false, message: 'Loan not found' });
+      return;
+    }
+
+    if (req.user!.role !== Role.ADMIN && !COLLECTION_VISIBLE_STATUSES.includes(loan.loanStatus)) {
+      res.status(403).json({ success: false, message: 'Forbidden: this loan is outside your module' });
+      return;
+    }
+
+    const history = await StatusHistory.find({ applicationId: id } as any)
+      .populate('actorId', 'email role')
+      .sort({ createdAt: 1 });
+
+    res.status(200).json({ success: true, data: history });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
