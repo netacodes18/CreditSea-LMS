@@ -36,6 +36,12 @@ To apply, a borrower must strictly be:
 ### 4. Sales Dashboards
 Instantly distills thousands of active system logs via MongoDB's `$aggregate` pipelines, returning high-level CRM metrics to the Sales UI instantly without overloading the Node process.
 
+### 5. Security & Stability Enhancements (Audit Remediation)
+*   **Cloudinary Private Uploads & Secure Proxy**: All sensitive documents are uploaded with `type: 'private'`. The backend acts as a secure proxy (`/api/.../download`), validating strict RBAC ownership (Borrowers can only see their own files, while Sanction/Admin staff can access all) before issuing short-lived (15 min) signed URLs.
+*   **Concurrency & Race Condition Protections**: The `LoanApplication` schema implements a compound partial unique index enforcing that a borrower can only have one active loan at a time. The API gracefully intercepts MongoDB `11000` duplicate key errors, returning a clean HTTP 400.
+*   **Fail-Closed Idempotency**: Payment and disbursement routes are protected by strict Idempotency middleware. The middleware mandates an `Idempotency-Key` header (failing with 400 if missing) and stores request hashes in MongoDB, preventing double-charging and "fail-open" bypasses.
+*   **Unbounded Query DoS Protection**: All high-volume endpoints (like Admin and Collection queues) implement safe MongoDB `.skip()` and `.limit()` pagination, bounded at 100 records max. The React frontend is seamlessly integrated with Next/Previous pagination controls.
+
 ---
 
 ## Getting Started
